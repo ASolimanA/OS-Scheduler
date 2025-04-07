@@ -1,0 +1,76 @@
+# Qt-specific files
+*.user
+*.user.*
+*.autosave
+*.stash
+*.qmake.stash
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+ui_*.h
+Makefile*
+*.qm
+.qmake.cache
+.qmake.stash
+
+# Build directories
+build/
+debug/
+release/
+*-debug/
+*-release/
+*_autogen/
+
+# Compiled Object files
+*.o
+*.obj
+*.so
+*.so.*
+*.dll
+*.dylib
+*.exe
+*.app
+
+# Generated files
+.qrc.depends
+.ui.depends
+.moc.depends
+*_pch.h.cpp
+*_resource.rc
+.pch/
+*_pch/
+*-build-*
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+CMakeTmp/
+cmake_install.cmake
+compile_commands.json
+CTestTestfile.cmake
+*_autogen
+_deps/
+
+# IDE-specific files (VS Code, etc)
+.vscode/
+.vs/
+*.code-workspace
+.idea/
+*.swp
+*.swo
+
+# OS-specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Qt Creator specific files
+CMakeLists.txt.user*
+*.creator.user*
+*.cbp
