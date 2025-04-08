@@ -6,7 +6,7 @@
 
 using namespace std;
 
-// Abstract Base Class (Interface or Abstract Parent)
+
 class Process {
     private:
         int pid;
