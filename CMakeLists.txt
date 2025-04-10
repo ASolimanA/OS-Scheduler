@@ -22,6 +22,8 @@ set(frontend_files
     frontend/mainwindow.cpp
     frontend/mainwindow.h
     frontend/mainwindow.ui
+    frontend/toggle.h
+    frontend/toggle.cpp
 )
 
 qt_add_executable(OS-Scheduler
@@ -29,6 +31,11 @@ qt_add_executable(OS-Scheduler
     main.cpp
     ${frontend_files}
     ${backend_files}
+
+
+
+
+
 )
 
 target_link_libraries(OS-Scheduler
