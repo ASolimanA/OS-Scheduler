@@ -24,7 +24,7 @@ private:
     QPropertyAnimation *m_thumbAnimation;
     QColor m_thumbColor = Qt::white;
     QColor m_trackColorChecked = QColor("#4cd964");
-    QColor m_trackColorUnchecked = QColor("#dddddd");
+    QColor m_trackColorUnchecked = QColor("#3A59D1");
 };
 
 #endif // TOGGLE_H

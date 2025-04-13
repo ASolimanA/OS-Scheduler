@@ -2,10 +2,13 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTableView>
+#include "toggle.h"
 
 QT_BEGIN_NAMESPACE
-namespace Ui {
-class MainWindow;
+namespace Ui
+{
+    class MainWindow;
 }
 QT_END_NAMESPACE
 
@@ -18,6 +21,13 @@ public:
     ~MainWindow();
 
 private:
+    void init_process_table(QTableView *tableView);
+    void connect_signals();
     Ui::MainWindow *ui;
+    ToggleSwitch *toggleSwitch;
+
+private slots:
+    void onToggleSwitchStateChanged(bool checked);
+    void on_addProcessButton_clicked();
 };
 #endif // MAINWINDOW_H

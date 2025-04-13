@@ -24,6 +24,8 @@ set(frontend_files
     frontend/mainwindow.ui
     frontend/toggle.h
     frontend/toggle.cpp
+    frontend/processProgress.cpp
+    frontend/processProgress.h
 )
 
 qt_add_executable(OS-Scheduler

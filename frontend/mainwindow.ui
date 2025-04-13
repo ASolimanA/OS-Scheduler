@@ -82,15 +82,57 @@ color:black;</string>
         <string notr="true">background-color:black;</string>
        </property>
       </widget>
-      <widget class="QWidget" name="toggle_button" native="true">
+      <widget class="QWidget" name="">
        <property name="geometry">
         <rect>
-         <x>730</x>
-         <y>10</y>
-         <width>71</width>
-         <height>41</height>
+         <x>749</x>
+         <y>20</y>
+         <width>191</width>
+         <height>31</height>
         </rect>
        </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QLabel" name="label_10">
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: black</string>
+          </property>
+          <property name="text">
+           <string>Instant</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QWidget" name="toggle_button" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>71</width>
+            <height>41</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_11">
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: black</string>
+          </property>
+          <property name="text">
+           <string>Live</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
@@ -333,7 +375,7 @@ color:black;</string>
        </widget>
       </item>
       <item row="0" column="4">
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="addProcessButton">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -346,7 +388,7 @@ color:black;</string>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="lineEdit">
+       <widget class="QLineEdit" name="processNameLine">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -389,7 +431,7 @@ color:black;</string>
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QLineEdit" name="lineEdit_2">
+       <widget class="QLineEdit" name="timeBurstLine">
         <property name="minimumSize">
          <size>
           <width>0</width>
