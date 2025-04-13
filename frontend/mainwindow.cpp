@@ -63,23 +63,23 @@ void MainWindow::on_comboBox_currentTextChanged(const QString &arg1)
 
 // Implementation for Ganttchart
 void MainWindow::on_Add_Button_clicked()
-{
-    lastProcess = createProcessBlock();
-    lastSize = 100;
-    QVBoxLayout* processContainer = new QVBoxLayout(lastProcess);
-    QLabel* processName = new QLabel(QString("Process %1").arg(processNumber++));
-    processName->setAlignment(Qt::AlignCenter);
-    processName->setStyleSheet("border:0; font-weight:bold;");
-    processContainer->addStretch();
-    processContainer->addWidget(processName);
-    processContainer->addStretch();
-    ganttChart->addWidget(lastProcess);
-}
+// {
+//     lastProcess = createProcessBlock();
+//     lastSize = 100;
+//     QVBoxLayout* processContainer = new QVBoxLayout(lastProcess);
+//     QLabel* processName = new QLabel(QString("Process %1").arg(processNumber++));
+//     processName->setAlignment(Qt::AlignCenter);
+//     processName->setStyleSheet("border:0; font-weight:bold;");
+//     processContainer->addStretch();
+//     processContainer->addWidget(processName);
+//     processContainer->addStretch();
+//     ganttChart->addWidget(lastProcess);
+// }
 
 
-void MainWindow::on_Start_Button_clicked()
-{
-    lastSize += 100;
-    lastProcess->setFixedSize(lastSize, 50);
-}
+// void MainWindow::on_Start_Button_clicked()
+// {
+//     lastSize += 100;
+//     lastProcess->setFixedSize(lastSize, 50);
+// }
 
