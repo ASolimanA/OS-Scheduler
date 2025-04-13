@@ -20,6 +20,12 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+    void on_Add_Button_clicked();
+
+    void on_Start_Button_clicked();
+
+    void on_comboBox_currentTextChanged(const QString &arg1);
 private:
     void init_process_table(QTableView *tableView);
     void connect_signals();
