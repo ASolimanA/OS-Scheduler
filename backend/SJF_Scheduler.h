@@ -2,11 +2,10 @@
 #define SJF_SCHEDULER_H
 
 #include <iostream>
-#include <memory>
 #include "scheduler.h"
 #include "process.h"
 
-class SJF_Sscheduler : public Scheduler {
+class SJF_Scheduler : public Scheduler {
 private:
     struct CompareRemainingTime {
         bool operator()(const std::shared_ptr<Process>& a, const std::shared_ptr<Process>& b) const {
@@ -18,7 +17,7 @@ private:
     };
 
 public:
-    SJF_Sscheduler();
+    SJF_Scheduler();
 
     virtual void run(int runUntilTime = -1) override;
 
