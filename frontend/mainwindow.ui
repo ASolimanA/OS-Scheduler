@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1026</width>
-    <height>739</height>
+    <width>909</width>
+    <height>707</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -228,7 +228,7 @@ color:black;</string>
      </layout>
     </item>
     <item row="3" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1,1,1">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,1,1">
       <property name="leftMargin">
        <number>20</number>
       </property>
@@ -249,10 +249,29 @@ color:black;</string>
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="comboBox"/>
+       <widget class="QComboBox" name="comboBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>300</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>300</width>
+          <height>16777215</height>
+         </size>
+        </property>
+       </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="radioButton_2">
+       <widget class="QRadioButton" name="preemptive">
         <property name="styleSheet">
          <string notr="true">margin:0 auto 0 auto</string>
         </property>
@@ -262,9 +281,12 @@ color:black;</string>
        </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="radioButton">
+       <widget class="QRadioButton" name="non_preemptive">
         <property name="text">
          <string>non-Preemptive</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -427,8 +449,8 @@ color:black;</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1026</width>
-     <height>25</height>
+     <width>909</width>
+     <height>21</height>
     </rect>
    </property>
   </widget>

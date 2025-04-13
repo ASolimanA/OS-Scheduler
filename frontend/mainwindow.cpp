@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "toggle.h"
+#include "qcombobox.h"
+#include "QString"
 
 //Just Testing
 QHBoxLayout* ganttChart;
@@ -26,6 +28,12 @@ MainWindow::MainWindow(QWidget *parent)
     ganttChart->setContentsMargins(10, 5, 10, 5);
     ganttChart->setAlignment(Qt::AlignLeft);
     ui->scrollArea->setWidget(container);
+    //comboBox
+    QStringList options = {"FCFS","SJF","Priority","Round Robin"};
+    ui->comboBox->addItems(options);
+    ui->comboBox->setFixedWidth(300);
+    ui->comboBox->setEditable(false);
+
 }
 
 
@@ -33,6 +41,25 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+
+void MainWindow::on_comboBox_currentTextChanged(const QString &arg1)
+{
+    if (arg1 == "FCFS" || arg1 == "Round Robin") {
+        ui->non_preemptive->setEnabled(false);
+        ui->preemptive->setEnabled(false);
+        ui->non_preemptive->setChecked(true);
+    } else {
+        ui->non_preemptive->setEnabled(true);
+        ui->preemptive->setEnabled(true);
+    }
+    if (arg1 == "FCFS" || arg1 == "SJF"){
+        ui->lineEdit_3->setEnabled(false);
+    }
+    else{
+        ui->lineEdit_3->setEnabled(true);
+    }
+}
+
 
 // Implementation for Ganttchart
 void MainWindow::on_Add_Button_clicked()
