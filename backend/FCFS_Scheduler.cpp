@@ -1,8 +1,8 @@
 #include <iostream>
 #include "algorithm"
 #include "FCFS_Scheduler.h"
-#include "scheduler.h"//
-#include "Process.h"
+#include "scheduler.h"
+#include "process.h"
 
 
 int ticks = 0;
