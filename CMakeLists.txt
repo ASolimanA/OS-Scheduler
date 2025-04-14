@@ -15,6 +15,8 @@ include_directories(
 set(backend_files
     # Example backend files
     # backend/file1.cpp
+        backend/scheduler.cpp
+        backend/scheduler.h
 )
 
 # Add the new frontend files here

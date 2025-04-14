@@ -3,7 +3,7 @@
 #include <math.h>
 #include <queue>
 #include <vector>
-#include "Process.h"
+#include "process.h"
 using namespace std;
 
 //class Process {
