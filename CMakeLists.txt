@@ -13,10 +13,18 @@ include_directories(
 
 # Add the new backend files here
 set(backend_files
-    # Example backend files
-    # backend/file1.cpp
-        backend/scheduler.cpp
-        backend/scheduler.h
+    backend/scheduler.cpp
+    backend/scheduler.h
+    backend/FCFS_Scheduler.cpp
+    backend/FCFS_Scheduler.h
+    backend/priority_scheduler.cpp
+    backend/priority_scheduler.h
+    backend/process.cpp
+    backend/process.h
+    backend/RR_SCHEDULER.cpp
+    backend/RR_SCHEDULER.h
+    backend/SJF_Scheduler.cpp
+    backend/SJF_Scheduler.h
 )
 
 # Add the new frontend files here
@@ -35,11 +43,6 @@ qt_add_executable(OS-Scheduler
     main.cpp
     ${frontend_files}
     ${backend_files}
-
-
-
-
-
 )
 
 target_link_libraries(OS-Scheduler
