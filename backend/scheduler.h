@@ -40,7 +40,17 @@ public:
     virtual void updateReadyQueue();
 
     // scheduling
-    virtual void run(int runUntilTime = -1) = 0;  // -1 = live
+    // Static simulation (same as run but renamed)
+    virtual void runStatic(int runUntilTime = -1);
+
+    // Run one time step and return whether simulation is complete
+    virtual bool runOneStep();
+
+    // Add new processes while simulation is running
+    virtual void addNewProcesses(const std::vector<std::shared_ptr<Process>>& newProcesses);
+
+    // Check if simulation is complete
+    virtual bool isSimulationComplete() const;
     virtual std::shared_ptr<Process> selectNextProcess() = 0;
 
     // metrics

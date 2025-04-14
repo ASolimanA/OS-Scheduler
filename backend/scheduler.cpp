@@ -9,6 +9,32 @@ Scheduler::Scheduler(
     : readyQueue(comp), processComparator(comp), preemptive(isPreemptive), name(schedulerName)
 {}
 
+// Add to scheduler.cpp
+void Scheduler::runStatic(int runUntilTime) {
+    // This will be overridden by each scheduler type
+    // with the same implementation as their run() method
+}
+
+bool Scheduler::runOneStep() {
+    // This will be overridden by each scheduler type
+    return false;
+}
+
+void Scheduler::addNewProcesses(const std::vector<std::shared_ptr<Process>>& newProcesses) {
+    for (const auto& p : newProcesses) {
+        addProcess(p);
+    }
+}
+
+bool Scheduler::isSimulationComplete() const {
+    for (const auto& p : allProcesses) {
+        if (!p->getIsComplete()) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void Scheduler::addProcess(std::shared_ptr<Process> p) {
     allProcesses.push_back(p);
     readyQueue.push(p);

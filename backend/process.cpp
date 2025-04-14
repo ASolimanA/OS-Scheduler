@@ -1,182 +1,51 @@
-#include <iostream>
-#include <string>
-#include <math.h>
-#include <queue>
-#include <vector>
 #include "process.h"
-using namespace std;
 
-//class Process {
-//    private:
-//        int pid;
-//        int arrivalTime;
-//        int burstTime;
-//        int remainingTime;
-//        int startTime;
-//        int completionTime;
-//        int waitingTime;
-//        bool isComplete;
-//        int turnaroundTime;
-//        int priority;
-//        string color; // For Gantt Chart Visualization
-    
-//    public:
-        Process::Process(){} // Default constructor
+// Default
+Process::Process()
+    : pid(0), arrivalTime(0), burstTime(0), remainingTime(0),
+    startTime(-1), completionTime(-1), waitingTime(0),
+    turnaroundTime(0), priority(0), isComplete(false),
+    color("grey")
+{}
 
-        Process::Process(int id, int aTime, int bTime){
-            pid=id;
-            arrivalTime=aTime;
-            burstTime=bTime;
-            remainingTime=bTime;//initially
-        } // Parameterized constructor
-        
-        Process::Process(int id, int aTime, int bTime, int pri){
-            pid=id;
-            arrivalTime=aTime;
-            burstTime=bTime;
-            remainingTime=bTime;//initially
-            priority=pri;
-        } // Parameterized constructor
+// Without priority
+Process::Process(int id, int arrival, int burst)
+    : pid(id), arrivalTime(arrival), burstTime(burst),
+    remainingTime(burst), startTime(-1), completionTime(-1),
+    waitingTime(0), turnaroundTime(0), priority(0),
+    isComplete(false), color("grey")
+{}
 
-        // Getters and setters 
-        // Getter and Setter for pid
-        int Process::getPid()  { return pid; }
-        void Process::setPid(int p) { pid = p; }
+// With priority
+Process::Process(int id, int arrival, int burst, int prio)
+    : pid(id), arrivalTime(arrival), burstTime(burst),
+    remainingTime(burst), startTime(-1), completionTime(-1),
+    waitingTime(0), turnaroundTime(0), priority(prio),
+    isComplete(false), color("grey")
+{}
 
-        // Getter and Setter for arrivalTime
-        int Process::getArrivalTime()  { return arrivalTime; }
-        void Process::setArrivalTime(int at) { arrivalTime = at; }
+// Getters
+int Process::getPid()            const { return pid; }
+int Process::getArrivalTime()    const { return arrivalTime; }
+int Process::getBurstTime()      const { return burstTime; }
+int Process::getRemainingTime()  const { return remainingTime; }
+int Process::getStartTime()      const { return startTime; }
+int Process::getCompletionTime() const { return completionTime; }
+int Process::getWaitingTime()    const { return waitingTime; }
+int Process::getTurnaroundTime() const { return turnaroundTime; }
+int Process::getPriority()       const { return priority; }
+bool Process::getIsComplete()    const { return isComplete; }
+const std::string& Process::getColor() const { return color; }
 
-        // Getter and Setter for burstTime
-        int Process::getBurstTime()  { return burstTime; }
-        void Process::setBurstTime(int bt) { burstTime = bt; }
-
-        // Getter and Setter for remainingTime
-        int Process::getRemainingTime()  { return remainingTime; }
-        void Process::setRemainingTime(int rt) { remainingTime = rt; }
-
-        // Getter and Setter for startTime
-        int Process::getStartTime()  { return startTime; }
-        void Process::setStartTime(int st) { startTime = st; }
-
-        // Getter and Setter for completionTime
-        int Process::getCompletionTime()  { return completionTime; }
-        void Process::setCompletionTime(int ct) { completionTime = ct; }
-
-        // Getter and Setter for waitingTime
-        int Process::getWaitingTime()  { return waitingTime; }
-        void Process::setWaitingTime(int wt) { waitingTime = wt; }
-
-        // Getter and Setter for isComplete
-        bool Process::getIsComplete()  { return isComplete; }
-        void Process::setIsComplete(bool complete) { isComplete = complete; }
-
-        // Getter and Setter for turnaroundTime
-        int Process::getTurnaroundTime()  { return turnaroundTime; }
-        void Process::setTurnaroundTime(int tat) { turnaroundTime = tat; }
-
-        // Getter and Setter for priority
-        int Process::getPriority()  { return priority; }
-        void Process::setPriority(int prio) { priority = prio; }
-
-        // Getter and Setter for color
-        string Process::getColor()  { return color; }
-        void Process::setColor(const string& c) { color = c; }
-
-        
-    //};
-    
-
-    //smaller first
-    //struct ComparePriority { //for  Priority  scheduling
-        bool ComparePriority::operator()(Process a, Process b) {
-            if(a.getPriority() == b.getPriority()){
-                return a.getArrivalTime() > b.getArrivalTime(); 
-            }
-            return a.getPriority() > b.getPriority(); 
-        }
-    //};  //"If a has greater priority value than b, a is lower priority, so it should come after b."
-
-    
-    //struct CompareArrivalTime { //FCFS 
-        bool CompareArrivalTime::operator()(Process a, Process b) {
-            if(a.getArrivalTime() == b.getArrivalTime()){ 
-                return a.getPid() > b.getPid(); 
-            }
-            return a.getArrivalTime() > b.getArrivalTime(); 
-        }
-    //};  //"If a has greater ArrivalTime value than b, so it should come after b."
-
-
-    //struct CompareBurstTime { //SJF i.e. Non-Preemptive
-        bool CompareBurstTime::operator()(Process a, Process b) {
-            if(a.getBurstTime() == b.getBurstTime()){
-                return a.getArrivalTime() > b.getArrivalTime(); 
-            }
-            return a.getBurstTime() > b.getBurstTime(); 
-        }
-    //};  //"If a has greater BurstTime value than b, so it should come after b."
-
-
-    //struct CompareRemainingTime { //SRTF i.e. Preemptive
-        bool CompareRemainingTime::operator()(Process a, Process b) {
-            if(a.getRemainingTime() == b.getRemainingTime()){
-                return a.getArrivalTime() > b.getArrivalTime(); 
-            }
-            return a.getRemainingTime() > b.getRemainingTime(); 
-        }
-    //};  //"If a has greater BurstTime value than b, so it should come after b."
-
-
-    //RoundRobin you will use circular queue not priority queue
-
-
-   
-   
-   
-    //**********************************************************************************************************************************
-
-    //****** Just a main function to declare the way to use priority queue in the scheduler algorithms implementation *******///
-    
-    /*
-    int main() {
-
-
-
-        priority_queue<Process, vector<Process>, ComparePriority> pq_Priority;
-            
-        priority_queue<Process, vector<Process>, CompareArrivalTime> pq_FCFS;
-            
-        priority_queue<Process, vector<Process>, CompareBurstTime> pq_SJF;
-        
-        priority_queue<Process, vector<Process>, CompareRemainingTime> pq_SRTF;
-
-
-        //Process(int id, int aTime, int bTime, int pri)
-
-        Process p1 (1, 2, 7, 1);
-        Process p2 (2, 2, 9, 2);
-        Process p3 (3, 3, 7, 3);
-        Process p4 (4, 4, 3, 4);
-        Process p5 (5, 5, 10, 1);
-        Process p6 (6, 5, 4, 2);
-
-        //replace "pq_Priority" with "pq_FCFS" or "pq_SJF" or "pq_SRTF" as you need
-        pq_FCFS.push(p1);
-        pq_FCFS.push(p2);
-        pq_FCFS.push(p3);
-        pq_FCFS.push(p4);
-        pq_FCFS.push(p5);
-        pq_FCFS.push(p6);
-    
-        while (!pq_FCFS.empty()) {
-            Process p = pq_FCFS.top();
-            cout << "PID: " << p.getPid() << ", Priority: " << p.getPriority() << ", arrival time: " << p.getArrivalTime() << "\n";
-            pq_FCFS.pop();
-        }
-    
-        return 0;
-    }
-        
-    
-    */
+// Setters
+void Process::setPid(int v)             { pid = v; }
+void Process::setArrivalTime(int v)     { arrivalTime = v; }
+void Process::setBurstTime(int v)       { burstTime = v; }
+void Process::setRemainingTime(int v)   { remainingTime = v; }
+void Process::setStartTime(int v)       { startTime = v; }
+void Process::setCompletionTime(int v)  { completionTime = v; }
+void Process::setWaitingTime(int v)     { waitingTime = v; }
+void Process::setTurnaroundTime(int v)  { turnaroundTime = v; }
+void Process::setPriority(int v)        { priority = v; }
+void Process::setIsComplete(bool v)     { isComplete = v; }
+void Process::setColor(const std::string& v) { color = v; }

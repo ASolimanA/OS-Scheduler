@@ -1,12 +1,7 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
-#include <iostream>
 #include <string>
-#include <queue>
-#include <vector>
-
-using namespace std;
 
 class Process {
 private:
@@ -17,66 +12,41 @@ private:
     int startTime;
     int completionTime;
     int waitingTime;
-    bool isComplete;
     int turnaroundTime;
     int priority;
-    string color; // For Gantt Chart Visualization
+    bool isComplete;
+    std::string color; // for Gantt chart
 
 public:
-    Process(); // Default constructor
-    Process(int id, int aTime, int bTime); // Parameterized constructor
-    Process(int id, int aTime, int bTime, int pri); // Parameterized constructor with priority
+    Process();
+    Process(int id, int arrival, int burst);
+    Process(int id, int arrival, int burst, int priority);
 
-    // Getters and setters
-    int getPid() const;
-    void setPid(int p);
-    
-    int getArrivalTime() const;
-    void setArrivalTime(int at);
-    
-    int getBurstTime() const;
-    void setBurstTime(int bt);
-    
-    int getRemainingTime() const;
-    void setRemainingTime(int rt);
-    
-    int getStartTime() const;
-    void setStartTime(int st);
-    
-    int getCompletionTime() const;
-    void setCompletionTime(int ct);
-    
-    int getWaitingTime() const;
-    void setWaitingTime(int wt);
-    
+    // getters
+    int  getPid() const;
+    int  getArrivalTime() const;
+    int  getBurstTime() const;
+    int  getRemainingTime() const;
+    int  getStartTime() const;
+    int  getCompletionTime() const;
+    int  getWaitingTime() const;
+    int  getTurnaroundTime() const;
+    int  getPriority() const;
     bool getIsComplete() const;
-    void setIsComplete(bool complete);
-    
-    int getTurnaroundTime() const;
-    void setTurnaroundTime(int tat);
-    
-    int getPriority() const;
-    void setPriority(int prio);
-    
-    std::string getColor() const;
-    void setColor(const std::string& c);
-};
+    const std::string& getColor() const;
 
-// Comparison structures for different scheduling algorithms
-struct ComparePriority {
-    bool operator()(Process a, Process b);
-};
-
-struct CompareArrivalTime {
-    bool operator()(Process a, Process b);
-};
-
-struct CompareBurstTime {
-    bool operator()(Process a, Process b);
-};
-
-struct CompareRemainingTime {
-    bool operator()(Process a, Process b);
+    // setters
+    void setPid(int);
+    void setArrivalTime(int);
+    void setBurstTime(int);
+    void setRemainingTime(int);
+    void setStartTime(int);
+    void setCompletionTime(int);
+    void setWaitingTime(int);
+    void setTurnaroundTime(int);
+    void setPriority(int);
+    void setIsComplete(bool);
+    void setColor(const std::string&);
 };
 
 #endif // PROCESS_H

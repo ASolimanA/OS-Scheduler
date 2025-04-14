@@ -1,27 +1,32 @@
-#include "fcfs_scheduler.h"
+#include "priority_scheduler.h"
+#include <algorithm>
 
-FCFS_Scheduler::FCFS_Scheduler()
+Priority_Scheduler::Priority_Scheduler(bool isPreemptive)
     : Scheduler(
           [](auto a, auto b){
-              return a->getArrivalTime() > b->getArrivalTime();
+              // If priorities are equal, sort by arrival time
+              if (a->getPriority() == b->getPriority())
+                  return a->getArrivalTime() > b->getArrivalTime();
+              // The smaller the priority number, the higher the priority
+              return a->getPriority() > b->getPriority();
           },
-          false,
-          "FCFS")
+          isPreemptive,
+          isPreemptive ? "Priority (Preemptive)" : "Priority (Non-Preemptive)")
 {}
 
-std::shared_ptr<Process> FCFS_Scheduler::selectNextProcess() {
+std::shared_ptr<Process> Priority_Scheduler::selectNextProcess() {
     if (readyQueue.empty()) return nullptr;
     return readyQueue.top();
 }
-
-void FCFS_Scheduler::runStatic(int runUntilTime) {
+void Priority_Scheduler::runStatic(int runUntilTime) {
     // This is the same as the current run method
     bool isLiveMode = (runUntilTime < 0);
+    std::shared_ptr<Process> currentProcess = nullptr;
 
-    while ((isLiveMode || timeCounter < runUntilTime)) {
+    while (isLiveMode || timeCounter < runUntilTime) {
         updateReadyQueue();
 
-        if (readyQueue.empty()) {
+        if (readyQueue.empty() && !currentProcess) {
             // No process available at current time
             if (allProcessesComplete())
                 break;
@@ -34,31 +39,69 @@ void FCFS_Scheduler::runStatic(int runUntilTime) {
             continue;
         }
 
-        auto p = selectNextProcess();
-        readyQueue.pop();
+        // Select the next process to run
+        if (!currentProcess || currentProcess->getRemainingTime() == 0 ||
+            (preemptive && !readyQueue.empty() &&
+             readyQueue.top()->getPriority() < currentProcess->getPriority())) {
 
-        // Set start time if this is first execution
-        if (p->getStartTime() < 0)
-            p->setStartTime(timeCounter);
+            // If current process is preempted or completed, push it back to the queue if it's not completed
+            if (currentProcess && currentProcess->getRemainingTime() > 0) {
+                readyQueue.push(currentProcess);
+            }
 
-        // Run to completion (FCFS is non-preemptive)
-        timeCounter += p->getRemainingTime();
-        p->setCompletionTime(timeCounter);
-        p->setRemainingTime(0);
-        p->setIsComplete(true);
+            currentProcess = selectNextProcess();
+            readyQueue.pop();
 
-        // Calculate metrics
-        p->setTurnaroundTime(p->getCompletionTime() - p->getArrivalTime());
-        p->setWaitingTime(p->getTurnaroundTime() - p->getBurstTime());
+            // Set start time if this is first execution
+            if (currentProcess->getStartTime() < 0)
+                currentProcess->setStartTime(timeCounter);
+        }
+
+        // Execute for 1 time unit (or until completion if non-preemptive)
+        int executeTime = preemptive ? 1 : currentProcess->getRemainingTime();
+
+        // Clamp execution time if runUntilTime is specified
+        if (!isLiveMode && timeCounter + executeTime > runUntilTime) {
+            executeTime = runUntilTime - timeCounter;
+        }
+
+        // Execute the process
+        timeCounter += executeTime;
+        int remaining = currentProcess->getRemainingTime() - executeTime;
+        currentProcess->setRemainingTime(remaining);
+
+        // Check if the process is completed
+        if (remaining <= 0) {
+            currentProcess->setCompletionTime(timeCounter);
+            currentProcess->setIsComplete(true);
+
+            // Calculate metrics
+            currentProcess->setTurnaroundTime(currentProcess->getCompletionTime() - currentProcess->getArrivalTime());
+            currentProcess->setWaitingTime(currentProcess->getTurnaroundTime() - currentProcess->getBurstTime());
+
+            currentProcess = nullptr;
+        }
+
+        // Break if we've reached the run until time
+        if (!isLiveMode && timeCounter >= runUntilTime)
+            break;
     }
 
     calculateAvgWaitingTime();
     calculateAvgTurnaroundTime();
 }
 
-bool FCFS_Scheduler::runOneStep() {
+bool Priority_Scheduler::runOneStep() {
     // Update ready queue with any newly arrived processes
     updateReadyQueue();
+
+    // Check preemption if necessary
+    if (currentProcess && preemptive && !readyQueue.empty() &&
+        readyQueue.top()->getPriority() < currentProcess->getPriority()) {
+        // Preempt current process
+        readyQueue.push(currentProcess);
+        currentProcess = nullptr;
+    }
 
     // If no current process, get the next one from the queue
     if (!currentProcess || currentProcess->getRemainingTime() <= 0) {
@@ -121,7 +164,8 @@ bool FCFS_Scheduler::runOneStep() {
 
     return isSimulationComplete();
 }
-bool FCFS_Scheduler::allProcessesComplete() const {
+
+bool Priority_Scheduler::allProcessesComplete() const {
     for (const auto& p : allProcesses) {
         if (!p->getIsComplete())
             return false;
@@ -129,7 +173,7 @@ bool FCFS_Scheduler::allProcessesComplete() const {
     return true;
 }
 
-int FCFS_Scheduler::findNextArrivalTime() const {
+int Priority_Scheduler::findNextArrivalTime() const {
     int nextArrival = INT_MAX;
     for (const auto& p : allProcesses) {
         if (!p->getIsComplete() && p->getArrivalTime() > timeCounter) {
