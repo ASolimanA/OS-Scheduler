@@ -7,7 +7,7 @@
 
 class SJF_Scheduler : public Scheduler {
 private:
-    int quantum time;
+    int quantum_time;
     struct CompareRemainingTime {
         bool operator()(const std::shared_ptr<Process>& a, const std::shared_ptr<Process>& b) const {
             if (a->getRemainingTime() == b->getRemainingTime()) {
@@ -18,7 +18,7 @@ private:
     };
 
 public:
-    SJF_Scheduler();
+    SJF_Scheduler(bool isPreemptive);
 
     virtual void run(int runUntilTime = -1) override;
 
