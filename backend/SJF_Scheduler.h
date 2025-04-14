@@ -7,6 +7,7 @@
 
 class SJF_Scheduler : public Scheduler {
 private:
+    int quantum time;
     struct CompareRemainingTime {
         bool operator()(const std::shared_ptr<Process>& a, const std::shared_ptr<Process>& b) const {
             if (a->getRemainingTime() == b->getRemainingTime()) {

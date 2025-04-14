@@ -23,7 +23,7 @@ void FCFS_Scheduler::run(int runUntilTime)  // -1 = live
 	}
 
 	auto current_process = readyQueue.top();
-	addProcess(current_process);
+
 
 	current_process->setStartTime(ticks);
 
