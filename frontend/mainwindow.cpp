@@ -44,6 +44,9 @@ MainWindow::MainWindow(QWidget *parent)
     {
         std::cout << process <<std::endl;
     }
+    // Timer
+    timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, &MainWindow::periodicFunction);
 }
 
 MainWindow::~MainWindow()
@@ -181,11 +184,20 @@ void MainWindow::on_comboBox_currentTextChanged(const QString &arg1)
 //     ganttChart->addWidget(lastProcess);
 // }
 
-// void MainWindow::on_Start_Button_clicked()
-// {
-//     lastSize += 100;
-//     lastProcess->setFixedSize(lastSize, 50);
-// }
 
 
 
+
+
+void MainWindow::periodicFunction() {
+
+}
+
+void MainWindow::on_Start_Button_clicked()
+{
+    // Start the 1 sec timer
+    timer->start(1000);
+    // Gantt Chart
+    //lastSize += 100;
+    //lastProcess->setFixedSize(lastSize, 50);
+}
