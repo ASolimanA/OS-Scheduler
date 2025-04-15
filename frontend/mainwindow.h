@@ -27,9 +27,16 @@ private slots:
     void onToggleSwitchStateChanged(bool checked);
     void on_addProcessButton_clicked();
 
+protected:
+    void init_gui_elements();
+
 private:
     void init_process_table(QTableView *tableView);
     void connect_signals();
+    void init_gantt_chart();
+    void init_comboBox();
+    void init_toggle_switch();
+
     Ui::MainWindow *ui;
     ToggleSwitch *toggleSwitch;
 };

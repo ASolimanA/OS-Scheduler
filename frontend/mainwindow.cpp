@@ -6,6 +6,7 @@
 #include <QTableView>
 #include "qcombobox.h"
 #include "QString"
+#include "scheduler.h"
 
 // Just Testing
 QHBoxLayout *ganttChart;
@@ -24,19 +25,8 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    toggleSwitch = new ToggleSwitch(ui->toggle_button);
-    init_process_table(ui->tableView);
-    QWidget *container = new QWidget;
-    ganttChart = new QHBoxLayout(container);
-    ganttChart->setSpacing(10);
-    ganttChart->setContentsMargins(10, 5, 10, 5);
-    ganttChart->setAlignment(Qt::AlignLeft);
-    ui->scrollArea->setWidget(container);
-    // comboBox
-    QStringList options = {"FCFS", "SJF", "Priority", "Round Robin"};
-    ui->comboBox->addItems(options);
-    ui->comboBox->setFixedWidth(300);
-    ui->comboBox->setEditable(false);
+
+    init_gui_elements();
 }
 
 MainWindow::~MainWindow()
@@ -141,6 +131,58 @@ void MainWindow::on_comboBox_currentTextChanged(const QString &arg1)
     }
 }
 
+void MainWindow::init_gui_elements()
+{
+    // Initialize GUI elements here
+    init_process_table(ui->tableView);
+    init_gantt_chart();
+    init_comboBox();
+    init_toggle_switch();
+}
+
+void MainWindow::update_table_view(QTableView *tableView, const std::vector<std::shared_ptr<Process>> &processes)
+{
+    // Clear the existing rows in the table view
+    QStandardItemModel *model = qobject_cast<QStandardItemModel *>(tableView->model());
+    if (model)
+    {
+        model->removeRows(0, model->rowCount());
+        for (const auto &process : processes)
+        {
+            QList<QStandardItem *> items;
+            items << new QStandardItem(QString::fromStdString(process->getName()))
+                  << new QStandardItem(QString::number(process->getProgress()))
+                  << new QStandardItem(QString::number(process->getRemainingTime()));
+            model->appendRow(items);
+        }
+    }
+}
+
+void MainWindow::init_gantt_chart()
+{
+    // Initialize the Gantt chart layout
+    QWidget *container = new QWidget;
+    ganttChart = new QHBoxLayout(container);
+    ganttChart->setSpacing(10);
+    ganttChart->setContentsMargins(10, 5, 10, 5);
+    ganttChart->setAlignment(Qt::AlignLeft);
+    ui->scrollArea->setWidget(container);
+}
+
+void MainWindow::init_toggle_switch()
+{
+    // Initialize the toggle switch
+    toggleSwitch = new ToggleSwitch(ui->toggle_button);
+}
+
+void MainWindow::init_comboBox()
+{
+    // comboBox
+    QStringList options = {"FCFS", "SJF", "Priority", "Round Robin"};
+    ui->comboBox->addItems(options);
+    ui->comboBox->setFixedWidth(300);
+    ui->comboBox->setEditable(false);
+}
 // Implementation for Ganttchart
 // void MainWindow::on_Add_Button_clicked()
 // {
