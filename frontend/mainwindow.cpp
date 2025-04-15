@@ -6,6 +6,7 @@
 #include <QTableView>
 #include "qcombobox.h"
 #include "QString"
+#include <iostream>
 
 // Just Testing
 QHBoxLayout *ganttChart;
@@ -37,6 +38,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->comboBox->addItems(options);
     ui->comboBox->setFixedWidth(300);
     ui->comboBox->setEditable(false);
+
+    //printing vector
+    for (const auto &process : processes)
+    {
+        std::cout << process <<std::endl;
+    }
 }
 
 MainWindow::~MainWindow()
@@ -108,11 +115,29 @@ void MainWindow::on_addProcessButton_clicked()
         QString remainingBurstTime = ui->timeBurstLine->text();
         ui->timeBurstLine->clear();
 
+        // Get priority from the line edit
+        QString priority = ui->lineEdit_3->text();
+        ui->lineEdit_3->clear();
+
+        // Get the time quantum from the line edit
+        QString timeQuantum = ui->lineEdit->text();
+        ui->lineEdit->clear();
+
+        // Get Arrival time from the line edit
+        QString arrivalTime = ui->lineEdit_4->text();
+        ui->lineEdit_4->clear();
+
         // Create a new item for the process name
         items << new QStandardItem(processName) << new QStandardItem("0") << new QStandardItem(remainingBurstTime);
         model->appendRow(items);
 
         int burstTime = remainingBurstTime.toInt(); // Get the burst time as an integer
+        int arrivalTimeInt = arrivalTime.toInt(); // Get the arrival time as an integer
+        int priorityInt = priority.toInt(); // Get the priority as an integer
+        int timeQuantumInt = timeQuantum.toInt(); // Get the time quantum as an integer
+
+        //put the processes in the vector
+        processes.push_back(std::make_shared<Process>(processName, burstTime, arrivalTimeInt, priorityInt, timeQuantumInt));
 
         // Perform any necessary integration with the new process
         // TODO: Add your logic to handle the new process here
@@ -161,3 +186,6 @@ void MainWindow::on_comboBox_currentTextChanged(const QString &arg1)
 //     lastSize += 100;
 //     lastProcess->setFixedSize(lastSize, 50);
 // }
+
+
+
