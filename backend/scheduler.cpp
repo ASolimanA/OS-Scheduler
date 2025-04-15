@@ -4,57 +4,69 @@
 Scheduler::Scheduler(
     std::function<bool(std::shared_ptr<Process>, std::shared_ptr<Process>)> comp,
     bool isPreemptive,
-    const std::string& schedulerName
-    )
+    const std::string &schedulerName)
     : readyQueue(comp), processComparator(comp), preemptive(isPreemptive), name(schedulerName)
-{}
+{
+}
 
 // Add to scheduler.cpp
-void Scheduler::runStatic(int runUntilTime) {
+void Scheduler::runStatic(int runUntilTime)
+{
     // This will be overridden by each scheduler type
     // with the same implementation as their run() method
 }
 
-bool Scheduler::runOneStep() {
+bool Scheduler::runOneStep()
+{
     // This will be overridden by each scheduler type
     return false;
 }
 
-void Scheduler::addNewProcesses(const std::vector<std::shared_ptr<Process>>& newProcesses) {
-    for (const auto& p : newProcesses) {
+void Scheduler::addNewProcesses(const std::vector<std::shared_ptr<Process>> &newProcesses)
+{
+    for (const auto &p : newProcesses)
+    {
         addProcess(p);
     }
 }
 
-bool Scheduler::isSimulationComplete() const {
-    for (const auto& p : allProcesses) {
-        if (!p->getIsComplete()) {
+bool Scheduler::isSimulationComplete() const
+{
+    for (const auto &p : allProcesses)
+    {
+        if (!p->getIsComplete())
+        {
             return false;
         }
     }
     return true;
 }
 
-void Scheduler::addProcess(std::shared_ptr<Process> p) {
+void Scheduler::addProcess(std::shared_ptr<Process> p)
+{
     allProcesses.push_back(p);
     readyQueue.push(p);
 }
 
-void Scheduler::deleteProcess(int pid) {
+void Scheduler::deleteProcess(int pid)
+{
     // remove from allProcesses
     allProcesses.erase(
         std::remove_if(allProcesses.begin(), allProcesses.end(),
-                       [pid](auto& p){ return p->getPid() == pid; }),
-        allProcesses.end()
-        );
+                       [pid](auto &p)
+                       { return p->getPid() == pid; }),
+        allProcesses.end());
     // rebuild readyQueue
     updateReadyQueue();
 }
 
-void Scheduler::updateProcess(std::shared_ptr<Process> p) {
+void Scheduler::updateProcess(std::shared_ptr<Process> p)
+{
     // find and replace in allProcesses
-    for (auto& proc : allProcesses) {
-        if (proc->getPid() == p->getPid()) {
+    for (auto &proc : allProcesses)
+    {
+        if (proc->getPid() == p->getPid())
+        {
             proc = p;
             break;
         }
@@ -62,17 +74,20 @@ void Scheduler::updateProcess(std::shared_ptr<Process> p) {
     updateReadyQueue();
 }
 
-void Scheduler::updateReadyQueue() {
+void Scheduler::updateReadyQueue()
+{
     // Create a new queue with the saved comparator
     std::priority_queue<
         std::shared_ptr<Process>,
         std::vector<std::shared_ptr<Process>>,
-        std::function<bool(std::shared_ptr<Process>, std::shared_ptr<Process>)>
-        > newQueue(processComparator);
+        std::function<bool(std::shared_ptr<Process>, std::shared_ptr<Process>)>>
+        newQueue(processComparator);
 
     // Add all eligible processes
-    for (auto& p : allProcesses) {
-        if (!p->getIsComplete() && p->getArrivalTime() <= timeCounter) {
+    for (auto &p : allProcesses)
+    {
+        if (!p->getIsComplete() && p->getArrivalTime() <= timeCounter)
+        {
             newQueue.push(p);
         }
     }
@@ -81,19 +96,24 @@ void Scheduler::updateReadyQueue() {
     readyQueue = std::move(newQueue);
 }
 
-void Scheduler::calculateAvgWaitingTime() {
+void Scheduler::calculateAvgWaitingTime()
+{
     float sum = 0;
-    for (auto& p : allProcesses) sum += p->getWaitingTime();
+    for (auto &p : allProcesses)
+        sum += p->getWaitingTime();
     avgWaitingTime = sum / allProcesses.size();
 }
 
-void Scheduler::calculateAvgTurnaroundTime() {
+void Scheduler::calculateAvgTurnaroundTime()
+{
     float sum = 0;
-    for (auto& p : allProcesses) sum += p->getTurnaroundTime();
+    for (auto &p : allProcesses)
+        sum += p->getTurnaroundTime();
     avgTurnaroundTime = sum / allProcesses.size();
 }
 
-float Scheduler::getAvgWaitingTime()    const { return avgWaitingTime; }
+float Scheduler::getAvgWaitingTime() const { return avgWaitingTime; }
 float Scheduler::getAvgTurnaroundTime() const { return avgTurnaroundTime; }
-int   Scheduler::getCurrentTime()       const { return timeCounter; }
-const std::string& Scheduler::getName() const { return name; }
+int Scheduler::getCurrentTime() const { return timeCounter; }
+const std::string &Scheduler::getName() const { return name; }
+std::shared_ptr<Process> Scheduler::getCurrentProcess() { return currentProcess; }

@@ -3,9 +3,12 @@
 
 #include <string>
 
-class Process {
+class Process
+{
 private:
     int pid;
+    static int nextId;
+    std::string name = "";
     int arrivalTime;
     int burstTime;
     int remainingTime;
@@ -15,25 +18,24 @@ private:
     int turnaroundTime;
     int priority;
     bool isComplete;
-    std::string color; // for Gantt chart
 
 public:
     Process();
-    Process(int id, int arrival, int burst);
-    Process(int id, int arrival, int burst, int priority);
+    Process(std::string p_name, int arrival, int burst);
+    Process(std::string p_name, int arrival, int burst, int priority);
 
     // getters
-    int  getPid() const;
-    int  getArrivalTime() const;
-    int  getBurstTime() const;
-    int  getRemainingTime() const;
-    int  getStartTime() const;
-    int  getCompletionTime() const;
-    int  getWaitingTime() const;
-    int  getTurnaroundTime() const;
-    int  getPriority() const;
+    int getPid() const;
+    int getArrivalTime() const;
+    int getBurstTime() const;
+    int getRemainingTime() const;
+    int getStartTime() const;
+    int getCompletionTime() const;
+    int getWaitingTime() const;
+    int getTurnaroundTime() const;
+    int getPriority() const;
     bool getIsComplete() const;
-    const std::string& getColor() const;
+    std::string getName();
 
     // setters
     void setPid(int);
@@ -46,7 +48,9 @@ public:
     void setTurnaroundTime(int);
     void setPriority(int);
     void setIsComplete(bool);
-    void setColor(const std::string&);
+    void setName(std::string &name);
+
+    float getProgress();
 };
 
 #endif // PROCESS_H

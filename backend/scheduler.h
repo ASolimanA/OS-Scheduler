@@ -7,12 +7,13 @@
 #include <memory>
 #include "process.h"
 
-class Scheduler {
+class Scheduler
+{
 protected:
     int timeCounter = 0;
-    float avgWaitingTime    = 0.0f;
+    float avgWaitingTime = 0.0f;
     float avgTurnaroundTime = 0.0f;
-    bool preemptive         = false;
+    bool preemptive = false;
     std::string name;
 
     // all processes ever added
@@ -23,12 +24,15 @@ protected:
     std::priority_queue<
         std::shared_ptr<Process>,
         std::vector<std::shared_ptr<Process>>,
-        std::function<bool(std::shared_ptr<Process>, std::shared_ptr<Process>)>
-        > readyQueue;
+        std::function<bool(std::shared_ptr<Process>, std::shared_ptr<Process>)>>
+        readyQueue;
+
+    // processes that are currently running
+    std::shared_ptr<Process> currentProcess = nullptr;
 
 public:
     Scheduler(std::function<bool(std::shared_ptr<Process>, std::shared_ptr<Process>)> comp,
-              bool isPreemptive, const std::string& schedulerName);
+              bool isPreemptive, const std::string &schedulerName);
     virtual ~Scheduler() = default;
 
     // dynamic process management
@@ -47,7 +51,7 @@ public:
     virtual bool runOneStep();
 
     // Add new processes while simulation is running
-    virtual void addNewProcesses(const std::vector<std::shared_ptr<Process>>& newProcesses);
+    virtual void addNewProcesses(const std::vector<std::shared_ptr<Process>> &newProcesses);
 
     // Check if simulation is complete
     virtual bool isSimulationComplete() const;
@@ -58,10 +62,11 @@ public:
     virtual void calculateAvgTurnaroundTime();
 
     // getters
-    float getAvgWaitingTime()    const;
+    float getAvgWaitingTime() const;
     float getAvgTurnaroundTime() const;
-    int   getCurrentTime()       const;
-    const std::string& getName() const;
+    int getCurrentTime() const;
+    const std::string &getName() const;
+    std::shared_ptr<Process> getCurrentProcess();
 };
 
 #endif // SCHEDULER_H

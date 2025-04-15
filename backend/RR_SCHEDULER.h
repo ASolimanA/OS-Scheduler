@@ -4,11 +4,11 @@
 
 #include "scheduler.h"
 #include <queue>
-#include <climits>  // For INT_MAX
+#include <climits> // For INT_MAX
 
-class RR_Scheduler : public Scheduler {
+class RR_Scheduler : public Scheduler
+{
 private:
-    std::shared_ptr<Process> currentProcess = nullptr;
     int quantumCounter = 0; // To track how much of the quantum has been used
     int timeQuantum;
     std::queue<std::shared_ptr<Process>> roundRobinQueue;

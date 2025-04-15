@@ -174,21 +174,21 @@ color:black;</string>
          <number>50</number>
         </property>
         <item row="0" column="0">
-         <widget class="QLabel" name="label_6">
+         <widget class="QLabel" name="avgWaitingLabel">
           <property name="text">
            <string>Average Waiting Time:</string>
           </property>
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QLabel" name="label_7">
+         <widget class="QLabel" name="avgTurnaroundLabel">
           <property name="text">
            <string>Average Turnaround Time:</string>
           </property>
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QTextBrowser" name="textBrowser">
+         <widget class="QTextBrowser" name="avgWaitingText">
           <property name="maximumSize">
            <size>
             <width>16777215</width>
@@ -204,7 +204,7 @@ color:black;</string>
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QTextBrowser" name="textBrowser_2">
+         <widget class="QTextBrowser" name="avgTurnaroundText">
           <property name="maximumSize">
            <size>
             <width>16777215</width>
@@ -270,7 +270,7 @@ color:black;</string>
      </layout>
     </item>
     <item row="3" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,1,1">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,1,1">
       <property name="leftMargin">
        <number>20</number>
       </property>
@@ -284,14 +284,14 @@ color:black;</string>
        <number>20</number>
       </property>
       <item>
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="schedulerLabel">
         <property name="text">
          <string>Scheduler:</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="comboBox">
+       <widget class="QComboBox" name="schedulerSelect">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -308,6 +308,23 @@ color:black;</string>
          <size>
           <width>300</width>
           <height>16777215</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_12">
+        <property name="text">
+         <string>Quantum time:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="quantumText">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>40</height>
          </size>
         </property>
        </widget>
@@ -354,48 +371,6 @@ color:black;</string>
       <property name="verticalSpacing">
        <number>7</number>
       </property>
-      <item row="0" column="2">
-       <widget class="QLabel" name="label_4">
-        <property name="styleSheet">
-         <string notr="true">margin:0 0 0 auto</string>
-        </property>
-        <property name="text">
-         <string>Priority:</string>
-        </property>
-        <property name="scaledContents">
-         <bool>false</bool>
-        </property>
-        <property name="indent">
-         <number>-1</number>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QLineEdit" name="lineEdit_3">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>40</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="4">
-       <widget class="QPushButton" name="Start_Button">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>50</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Start</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="4">
        <widget class="QPushButton" name="addProcessButton">
         <property name="minimumSize">
@@ -409,17 +384,7 @@ color:black;</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="processNameLine">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>40</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
+      <item row="1" column="0">
        <widget class="QLabel" name="label_3">
         <property name="styleSheet">
          <string notr="true">margin:0 0 0 auto</string>
@@ -429,18 +394,8 @@ color:black;</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="2">
-       <widget class="QLabel" name="label_5">
-        <property name="styleSheet">
-         <string notr="true">margin:0 0 0 auto</string>
-        </property>
-        <property name="text">
-         <string>Arrival Time:</string>
-        </property>
-       </widget>
-      </item>
       <item row="2" column="4">
-       <widget class="QPushButton" name="pushButton_3">
+       <widget class="QPushButton" name="pauseButton">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -452,18 +407,8 @@ color:black;</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="timeBurstLine">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>40</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="3">
-       <widget class="QLineEdit" name="lineEdit_4">
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="processNameLine">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -482,15 +427,70 @@ color:black;</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_12">
-        <property name="text">
-         <string>Quantum time</string>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="timeBurstText">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>40</height>
+         </size>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="lineEdit">
+      <item row="1" column="4">
+       <widget class="QPushButton" name="startButton">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>50</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Start</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="label_5">
+        <property name="styleSheet">
+         <string notr="true">margin:0 0 0 auto</string>
+        </property>
+        <property name="text">
+         <string>Arrival Time:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QLineEdit" name="arrivalText">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>40</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLabel" name="label_4">
+        <property name="styleSheet">
+         <string notr="true">margin:0 0 0 auto</string>
+        </property>
+        <property name="text">
+         <string>Priority:</string>
+        </property>
+        <property name="scaledContents">
+         <bool>false</bool>
+        </property>
+        <property name="indent">
+         <number>-1</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QLineEdit" name="priorityText">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="minimumSize">
          <size>
           <width>0</width>

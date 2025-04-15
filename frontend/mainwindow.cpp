@@ -4,15 +4,19 @@
 #include "toggle.h"
 #include "processProgress.h"
 #include <QTableView>
+#include <QMessageBox>
 #include "qcombobox.h"
 #include "QString"
 #include <iostream>
 #include "scheduler.h"
+#include "process.h"
+#include "FCFS_scheduler.h"
+#include "SJF_Scheduler.h"
+#include "Priority_Scheduler.h"
+#include "RR_SCHEDULER.h"
 
 // Just Testing
 QHBoxLayout *ganttChart;
-QFrame *lastProcess;
-int lastSize, processNumber = 1;
 
 QFrame *createProcessBlock()
 {
@@ -28,14 +32,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     init_gui_elements();
-    //printing vector
-    for (const auto &process : processes)
-    {
-        std::cout << process <<std::endl;
-    }
     // Timer
     timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &MainWindow::periodicFunction);
 }
 
 MainWindow::~MainWindow()
@@ -70,10 +68,16 @@ void MainWindow::init_process_table(QTableView *tableView)
 void MainWindow::connect_signals()
 {
     // Connect the toggle switch signal to the slot
-    connect(toggleSwitch, &ToggleSwitch::toggled, this, onToggleSwitchStateChanged);
+    connect(toggleSwitch, &ToggleSwitch::toggled, this, &MainWindow::onToggleSwitchStateChanged);
 
     // Connect the add process button signal to the slot
     connect(ui->addProcessButton, &QPushButton::clicked, this, &MainWindow::on_addProcessButton_clicked);
+
+    // Connect the start button signal to the slot
+    connect(ui->startButton, &QPushButton::clicked, this, &MainWindow::on_startButton_clicked);
+
+    // Connect timer to periodicFunction
+    connect(timer, &QTimer::timeout, this, &MainWindow::periodicFunction);
 }
 
 void MainWindow::onToggleSwitchStateChanged(bool checked)
@@ -97,6 +101,8 @@ void MainWindow::on_addProcessButton_clicked()
     QStandardItemModel *model = qobject_cast<QStandardItemModel *>(ui->tableView->model());
     if (model)
     {
+        // close combobox
+        ui->schedulerSelect->setEnabled(false);
         // Add a new row to the model with sample data
         QList<QStandardItem *> items;
         // Get the process name from the line edit
@@ -104,32 +110,44 @@ void MainWindow::on_addProcessButton_clicked()
         ui->processNameLine->clear();
 
         // Get the remaining burst time from the line edit
-        QString remainingBurstTime = ui->timeBurstLine->text();
-        ui->timeBurstLine->clear();
-
-        // Get priority from the line edit
-        QString priority = ui->lineEdit_3->text();
-        ui->lineEdit_3->clear();
-
-        // Get the time quantum from the line edit
-        QString timeQuantum = ui->lineEdit->text();
-        ui->lineEdit->clear();
+        QString remainingBurstTime = ui->timeBurstText->text();
+        ui->timeBurstText->clear();
 
         // Get Arrival time from the line edit
-        QString arrivalTime = ui->lineEdit_4->text();
-        ui->lineEdit_4->clear();
+        QString arrivalTime = ui->arrivalText->text();
+        ui->arrivalText->clear();
+
+        // if the comboBox is not chosen as Round Robin don't get the value of lineEdit
+        QString timeQuantum;
+        int timeQuantumInt;
+        if (ui->schedulerSelect->currentText() == "Round Robin")
+        {
+            // Get the time quantum from the line edit
+            timeQuantum = ui->quantumText->text();
+            timeQuantumInt = timeQuantum.toInt(); // Get the time quantum as an integer
+            ui->quantumText->clear();
+        }
+
+        // if the comboBox is not chosen as Round Robin or Priority don't get the value of lineEdit_3
+        QString priority;
+        int priorityInt;
+        if (ui->schedulerSelect->currentText() == "Priority")
+        {
+            // Get the priority from the line edit
+            priority = ui->priorityText->text();
+            priorityInt = priority.toInt(); // Get the priority as an integer
+            ui->priorityText->clear();
+        }
 
         // Create a new item for the process name
         items << new QStandardItem(processName) << new QStandardItem("0") << new QStandardItem(remainingBurstTime);
         model->appendRow(items);
 
         int burstTime = remainingBurstTime.toInt(); // Get the burst time as an integer
-        int arrivalTimeInt = arrivalTime.toInt(); // Get the arrival time as an integer
-        int priorityInt = priority.toInt(); // Get the priority as an integer
-        int timeQuantumInt = timeQuantum.toInt(); // Get the time quantum as an integer
+        int arrivalTimeInt = arrivalTime.toInt();   // Get the arrival time as an integer
 
-        //put the processes in the vector
-        processes.push_back(std::make_shared<Process>(processName, burstTime, arrivalTimeInt, priorityInt, timeQuantumInt));
+        // put the processes in the vector
+        processes.push_back(std::make_shared<Process>(processName.toStdString(), arrivalTimeInt, burstTime, priorityInt));
 
         // Perform any necessary integration with the new process
         // TODO: Add your logic to handle the new process here
@@ -148,13 +166,23 @@ void MainWindow::on_comboBox_currentTextChanged(const QString &arg1)
         ui->non_preemptive->setEnabled(true);
         ui->preemptive->setEnabled(true);
     }
-    if (arg1 == "FCFS" || arg1 == "SJF")
+    // Enable or disable the time quantum line edit based on the selected algorithm
+    if (arg1 == "Round Robin")
     {
-        ui->lineEdit_3->setEnabled(false);
+        ui->quantumText->setEnabled(true);
     }
     else
     {
-        ui->lineEdit_3->setEnabled(true);
+        ui->quantumText->setEnabled(false);
+    }
+    /// Enable or disable the priority line edit based on the selected algorithm
+    if (arg1 == "Priority" || arg1 == "Round Robin")
+    {
+        ui->priorityText->setEnabled(true);
+    }
+    else
+    {
+        ui->priorityText->setEnabled(false);
     }
 }
 
@@ -206,9 +234,9 @@ void MainWindow::init_comboBox()
 {
     // comboBox
     QStringList options = {"FCFS", "SJF", "Priority", "Round Robin"};
-    ui->comboBox->addItems(options);
-    ui->comboBox->setFixedWidth(300);
-    ui->comboBox->setEditable(false);
+    ui->schedulerSelect->addItems(options);
+    ui->schedulerSelect->setFixedWidth(300);
+    ui->schedulerSelect->setEditable(false);
 }
 // Implementation for Ganttchart
 // void MainWindow::on_Add_Button_clicked()
@@ -225,20 +253,114 @@ void MainWindow::init_comboBox()
 //     ganttChart->addWidget(lastProcess);
 // }
 
-
-
-
-
-
-void MainWindow::periodicFunction() {
-
+void MainWindow::updateGanttChart()
+{
+    static std::shared_ptr<Process> lastProcess = nullptr;
+    static QFrame *lastProcessFrame = nullptr;
+    static int lastSize = 0;
+    std::shared_ptr<Process> currentProcess;
+    if (scheduler->getCurrentProcess() != nullptr)
+    {
+        currentProcess = scheduler->getCurrentProcess();
+    }
+    else
+    {
+        currentProcess = nullptr;
+    }
+    if (lastProcess == nullptr || currentProcess != lastProcess)
+    {
+        lastProcessFrame = createProcessBlock();
+        lastSize = 100;
+        QVBoxLayout *processContainer = new QVBoxLayout(lastProcessFrame);
+        QLabel *processName = new QLabel(QString::fromStdString(currentProcess->getName()));
+        processName->setAlignment(Qt::AlignCenter);
+        processName->setStyleSheet("border:0; font-weight:bold;");
+        processContainer->addStretch();
+        processContainer->addWidget(processName);
+        processContainer->addStretch();
+        ganttChart->addWidget(lastProcessFrame);
+    }
+    else if (lastProcessFrame != nullptr)
+    {
+        lastSize += 100;
+        lastProcessFrame->setFixedSize(lastSize, 50);
+    }
 }
 
-void MainWindow::on_Start_Button_clicked()
+void MainWindow::periodicFunction()
 {
-    // Start the 1 sec timer
-    timer->start(1000);
-    // Gantt Chart
-    //lastSize += 100;
-    //lastProcess->setFixedSize(lastSize, 50);
+    // Update Table View
+    update_table_view(ui->tableView, processes);
+    // Update Gantt Chart
+    updateGanttChart();
+    // Run the scheduler
+    scheduler->runOneStep();
+}
+
+void MainWindow::finalRunUpdate()
+{
+    // Get average waiting time and turnaround time
+    ui->avgWaitingText->setEnabled(false);
+    ui->avgTurnaroundText->setEnabled(false);
+    ui->avgWaitingText->setText(QString::number(scheduler->getAvgWaitingTime()));
+    ui->avgTurnaroundText->setText(QString::number(scheduler->getAvgTurnaroundTime()));
+}
+
+void MainWindow::on_startButton_clicked()
+{
+    // Get the selected algorithm from the combo box
+    QString selectedAlgorithm = ui->schedulerSelect->currentText();
+
+    // Get the selected preemptive option
+    bool isPreemptive = ui->preemptive->isChecked();
+
+    scheduler = startScheduler(selectedAlgorithm, isPreemptive);
+
+    // start the scheduler
+    if (scheduler != nullptr)
+    {
+        // Check for live toggle switch
+        if (toggleSwitch->isChecked())
+        {
+            // Start the timer with a delay for live mode
+            timer->start(1000);
+        }
+        else
+        {
+            // Start the timer with no delay for non-live mode
+            timer->start(10);
+        }
+    }
+}
+
+Scheduler *MainWindow::startScheduler(const QString &selectedAlgorithm, bool isPreemptive)
+{
+    Scheduler *scheduler = nullptr;
+    if (selectedAlgorithm == "FCFS")
+    {
+        scheduler = new FCFS_Scheduler();
+    }
+    else if (selectedAlgorithm == "SJF")
+    {
+        scheduler = new SJF_Scheduler(isPreemptive);
+    }
+    else if (selectedAlgorithm == "Priority")
+    {
+        scheduler = new Priority_Scheduler(isPreemptive);
+    }
+    else if (selectedAlgorithm == "Round Robin")
+    {
+        try
+        {
+            int timeQuantum = ui->quantumText->text().toInt();
+            scheduler = new RR_Scheduler(timeQuantum);
+        }
+        catch (const std::invalid_argument &e)
+        {
+            // Pop a message box to inform the user to enter a valid time quantum
+            QMessageBox::warning(this, "Invalid Input", "Please enter a valid time quantum.");
+            return nullptr; // Return null if the time quantum is invalid
+        }
+    }
+    return scheduler;
 }
