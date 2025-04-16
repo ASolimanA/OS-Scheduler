@@ -31,9 +31,15 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    // Set the window title
+    setWindowTitle("OS Scheduler");
+
     init_gui_elements();
     // Timer
     timer = new QTimer(this);
+
+    // Connect signals and slots
+    connect_signals();
 }
 
 MainWindow::~MainWindow()
@@ -56,9 +62,12 @@ void MainWindow::init_process_table(QTableView *tableView)
     ProgressBarDelegate *delegate = new ProgressBarDelegate(this);
     tableView->setItemDelegateForColumn(1, delegate);
 
+    // Set the selection mode and behavior
+    // tableView->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed | QAbstractItemView::AnyKeyPressed);
+
     // Set the column widths
-    tableView->setColumnWidth(0, 200);                                            // Task column width
-    tableView->setColumnWidth(1, 100);                                            // Progress column width
+    tableView->setColumnWidth(0, 100);                                            // Task column width
+    tableView->setColumnWidth(1, 200);                                            // Progress column width
     tableView->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch); // Stretch the last column
 
     // Set the row height
@@ -70,11 +79,11 @@ void MainWindow::connect_signals()
     // Connect the toggle switch signal to the slot
     connect(toggleSwitch, &ToggleSwitch::toggled, this, &MainWindow::onToggleSwitchStateChanged);
 
-    // Connect the add process button signal to the slot
-    connect(ui->addProcessButton, &QPushButton::clicked, this, &MainWindow::on_addProcessButton_clicked);
+    // Connect the add process button signal to the slot (NOT NEEDED AS QT AUTOMATICALLY CONNECTS)
+    // connect(ui->addProcessButton, &QPushButton::clicked, this, &MainWindow::on_addProcessButton_clicked);
 
-    // Connect the start button signal to the slot
-    connect(ui->startButton, &QPushButton::clicked, this, &MainWindow::on_startButton_clicked);
+    // Connect the start button signal to the slot (NOT NEEDED AS QT AUTOMATICALLY CONNECTS)
+    // connect(ui->startButton, &QPushButton::clicked, this, &MainWindow::on_startButton_clicked);
 
     // Connect timer to periodicFunction
     connect(timer, &QTimer::timeout, this, &MainWindow::periodicFunction);
@@ -101,32 +110,56 @@ void MainWindow::on_addProcessButton_clicked()
     QStandardItemModel *model = qobject_cast<QStandardItemModel *>(ui->tableView->model());
     if (model)
     {
-        // close combobox
-        ui->schedulerSelect->setEnabled(false);
         // Add a new row to the model with sample data
         QList<QStandardItem *> items;
         // Get the process name from the line edit
         QString processName = ui->processNameLine->text();
-        ui->processNameLine->clear();
+        if (processName.isEmpty())
+        {
+            // Show a message box if the process name is empty
+            QMessageBox::warning(this, "Invalid Input", "Please enter a valid process name and other required fields.");
+            return; // Return if the process name is empty
+        }
+
+        // Check if the process name already exists in the processes vector
+        for (const auto &process : processes)
+        {
+            if (process->getName() == processName.toStdString())
+            {
+                // Show a message box if the process name already exists
+                QMessageBox::warning(this, "Duplicate Process Name", "Process name already exists. Please choose a different name.");
+                return; // Return if the process name already exists
+            }
+        }
 
         // Get the remaining burst time from the line edit
         QString remainingBurstTime = ui->timeBurstText->text();
-        ui->timeBurstText->clear();
+        if (remainingBurstTime.isEmpty())
+        {
+            // Show a message box if the remaining burst time is empty
+            QMessageBox::warning(this, "Invalid Input", "Please enter a valid remaining burst time and other required fields.");
+            return; // Return if the remaining burst time is empty
+        }
 
         // Get Arrival time from the line edit
         QString arrivalTime = ui->arrivalText->text();
-        ui->arrivalText->clear();
+        if (arrivalTime.isEmpty())
+        {
+            // Show a message box if the arrival time is empty
+            QMessageBox::warning(this, "Invalid Input", "Please enter a valid arrival time and other required fields.");
+            return; // Return if the arrival time is empty
+        }
 
         // if the comboBox is not chosen as Round Robin don't get the value of lineEdit
-        QString timeQuantum;
-        int timeQuantumInt;
-        if (ui->schedulerSelect->currentText() == "Round Robin")
-        {
-            // Get the time quantum from the line edit
-            timeQuantum = ui->quantumText->text();
-            timeQuantumInt = timeQuantum.toInt(); // Get the time quantum as an integer
-            ui->quantumText->clear();
-        }
+        // QString timeQuantum;
+        // int timeQuantumInt;
+        // if (ui->schedulerSelect->currentText() == "Round Robin")
+        // {
+        //     // Get the time quantum from the line edit
+        //     timeQuantum = ui->quantumText->text();
+        //     timeQuantumInt = timeQuantum.toInt(); // Get the time quantum as an integer
+        //     ui->quantumText->clear();
+        // }
 
         // if the comboBox is not chosen as Round Robin or Priority don't get the value of lineEdit_3
         QString priority;
@@ -135,9 +168,20 @@ void MainWindow::on_addProcessButton_clicked()
         {
             // Get the priority from the line edit
             priority = ui->priorityText->text();
+            if (priority.isEmpty())
+            {
+                // Show a message box if the priority is empty
+                QMessageBox::warning(this, "Invalid Input", "Please enter a valid priority.");
+                return; // Return if the priority is empty
+            }
             priorityInt = priority.toInt(); // Get the priority as an integer
             ui->priorityText->clear();
         }
+
+        // Clear the line edits after getting the values
+        ui->processNameLine->clear();
+        ui->arrivalText->clear();
+        ui->timeBurstText->clear();
 
         // Create a new item for the process name
         items << new QStandardItem(processName) << new QStandardItem("0") << new QStandardItem(remainingBurstTime);
@@ -149,11 +193,11 @@ void MainWindow::on_addProcessButton_clicked()
         // put the processes in the vector
         processes.push_back(std::make_shared<Process>(processName.toStdString(), arrivalTimeInt, burstTime, priorityInt));
 
-        // Perform any necessary integration with the new process
-        // TODO: Add your logic to handle the new process here
+        // close combobox
+        ui->schedulerSelect->setEnabled(false);
     }
 }
-void MainWindow::on_comboBox_currentTextChanged(const QString &arg1)
+void MainWindow::on_schedulerSelect_currentTextChanged(const QString &arg1)
 {
     if (arg1 == "FCFS" || arg1 == "Round Robin")
     {
@@ -176,7 +220,7 @@ void MainWindow::on_comboBox_currentTextChanged(const QString &arg1)
         ui->quantumText->setEnabled(false);
     }
     /// Enable or disable the priority line edit based on the selected algorithm
-    if (arg1 == "Priority" || arg1 == "Round Robin")
+    if (arg1 == "Priority")
     {
         ui->priorityText->setEnabled(true);
     }
@@ -193,6 +237,7 @@ void MainWindow::init_gui_elements()
     init_gantt_chart();
     init_comboBox();
     init_toggle_switch();
+    init_processor_image();
 }
 
 void MainWindow::update_table_view(QTableView *tableView, const std::vector<std::shared_ptr<Process>> &processes)
@@ -205,9 +250,16 @@ void MainWindow::update_table_view(QTableView *tableView, const std::vector<std:
         for (const auto &process : processes)
         {
             QList<QStandardItem *> items;
-            items << new QStandardItem(QString::fromStdString(process->getName()))
-                  << new QStandardItem(QString::number(process->getProgress()))
-                  << new QStandardItem(QString::number(process->getRemainingTime()));
+
+            QStandardItem *nameItem = new QStandardItem(QString::fromStdString(process->getName()));
+
+            // Progress item (non-editable)
+            QStandardItem *progressItem = new QStandardItem(QString::number(process->getProgress()));
+            // progressItem->setFlags(progressItem->flags() & ~Qt::ItemIsEditable); // Make this item non-editable
+
+                        QStandardItem *remainingTimeItem = new QStandardItem(QString::number(process->getRemainingTime()));
+
+            items << nameItem << progressItem << remainingTimeItem;
             model->appendRow(items);
         }
     }
@@ -238,6 +290,50 @@ void MainWindow::init_comboBox()
     ui->schedulerSelect->setFixedWidth(300);
     ui->schedulerSelect->setEditable(false);
 }
+
+void MainWindow::init_processor_image()
+{
+    // Create a graphics scene for the graphics view
+    QGraphicsScene *scene = new QGraphicsScene(this);
+
+    // Load the processor image from the resources
+    QPixmap processorImage(":/assets/processor.png");
+
+    // Check if the image was loaded successfully
+    if (processorImage.isNull())
+    {
+        // Try alternative paths if resource path doesn't work
+        processorImage.load("processor.png");
+
+        if (processorImage.isNull())
+        {
+            processorImage.load("assets/processor.png");
+
+            if (processorImage.isNull())
+            {
+                qDebug() << "Failed to load processor.png";
+                return;
+            }
+        }
+    }
+
+    // Add the image to the scene
+    scene->addPixmap(processorImage);
+
+    // Set the scene to the graphics view
+    ui->graphicsView->setScene(scene);
+
+    // Scale the image to fit the view
+    ui->graphicsView->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
+
+    // Disable scrollbars
+    ui->graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    // Enable antialiasing for better image quality
+    ui->graphicsView->setRenderHint(QPainter::Antialiasing);
+}
+
 // Implementation for Ganttchart
 // void MainWindow::on_Add_Button_clicked()
 // {
@@ -292,7 +388,7 @@ void MainWindow::periodicFunction()
     // Update Table View
     update_table_view(ui->tableView, processes);
     // Update Gantt Chart
-    updateGanttChart();
+    // updateGanttChart();
     // Run the scheduler
     scheduler->runOneStep();
 }
@@ -362,5 +458,6 @@ Scheduler *MainWindow::startScheduler(const QString &selectedAlgorithm, bool isP
             return nullptr; // Return null if the time quantum is invalid
         }
     }
+    scheduler->addNewProcesses(processes); // Set the processes in the scheduler
     return scheduler;
 }

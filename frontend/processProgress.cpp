@@ -6,7 +6,7 @@ void ProgressBarDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
                                 const QModelIndex &index) const
 {
     // Get the progress value (should be 0-100)
-    int progress = index.data(Qt::DisplayRole).toInt();
+    float progress = index.data(Qt::DisplayRole).toFloat();
 
     if (progress >= 0 && progress <= 100)
     {

@@ -28,7 +28,7 @@ public:
 
 private slots:
     // void on_Add_Button_clicked();
-    void on_comboBox_currentTextChanged(const QString &arg1);
+    void on_schedulerSelect_currentTextChanged(const QString &arg1);
     void onToggleSwitchStateChanged(bool checked);
     void on_addProcessButton_clicked();
     void on_startButton_clicked();
@@ -44,6 +44,7 @@ private:
     void init_gantt_chart();
     void init_comboBox();
     void init_toggle_switch();
+    void init_processor_image();
     void finalRunUpdate();
     Scheduler *startScheduler(const QString &selectedAlgorithm, bool isPreemptive);
 

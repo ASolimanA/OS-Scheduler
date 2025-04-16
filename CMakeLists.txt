@@ -11,6 +11,9 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/frontend    
 )
 
+# Add the Qt resource files
+qt_add_resources(RESOURCES resources.qrc)
+
 # Add the new backend files here
 set(backend_files
     backend/scheduler.cpp
@@ -43,6 +46,7 @@ qt_add_executable(OS-Scheduler
     main.cpp
     ${frontend_files}
     ${backend_files}
+    ${RESOURCES}
 )
 
 target_link_libraries(OS-Scheduler

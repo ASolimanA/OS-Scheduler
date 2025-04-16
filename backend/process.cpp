@@ -31,10 +31,10 @@ Process::Process(std::string p_name, int arrival, int burst, int prio)
 float Process::getProgress()
 {
   if (remainingTime == 0)
-    return 1.0f; // Completed
+    return 100.0f; // Completed
   if (burstTime == 0)
     return 0.0f; // Not started
-  return static_cast<float>(burstTime - remainingTime) / burstTime;
+  return (static_cast<float>(burstTime - remainingTime) / burstTime) * 100.0f;
 }
 
 // Getters
