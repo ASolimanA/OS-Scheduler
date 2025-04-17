@@ -420,6 +420,7 @@ void MainWindow::on_startButton_clicked()
             live = false;
         }
     }
+    finished = false;
     // Disable the Delete button
     ui->deleteButton->setEnabled(false);
     // Disable startButton
@@ -496,6 +497,8 @@ void clearLayout(QLayout* layout) {
 
 void MainWindow::on_restartButton_clicked()
 {
+    // Stoping timer
+    timer->stop();
     // Enable startButton
     ui->startButton->setEnabled(true);
     // Enable RaidoButtons ( Preemptive and non-Preemptive )
