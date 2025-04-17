@@ -409,6 +409,10 @@ void MainWindow::finalRunUpdate()
 
 void MainWindow::on_startButton_clicked()
 {
+    if (processes.empty()) {
+        QMessageBox::warning(this, "Invalid Operation", "No Processes to be scheduled.");
+        return;
+    }
     // Get the selected algorithm from the combo box
     QString selectedAlgorithm = ui->schedulerSelect->currentText();
 
@@ -436,6 +440,11 @@ void MainWindow::on_startButton_clicked()
     }
     // Disable the Delete button
     ui->deleteButton->setEnabled(false);
+    // Disable startButton
+    ui->startButton->setEnabled(false);
+    //Disable RaidoButtons ( Preemptive and non-Preemptive )
+    ui->preemptive->setEnabled(false);
+    ui->non_preemptive->setEnabled(false);
 }
 
 Scheduler *MainWindow::startScheduler(const QString &selectedAlgorithm, bool isPreemptive)
@@ -495,7 +504,12 @@ void MainWindow::on_deleteButton_clicked()
 
 void MainWindow::on_restartButton_clicked()
 {
-    //precesses reset ??
+    // Enable startButton
+    ui->startButton->setEnabled(true);
+    // Enable RaidoButtons ( Preemptive and non-Preemptive )
+    ui->preemptive->setEnabled(true);
+    ui->non_preemptive->setEnabled(true);
+    // precesses reset ??
     while (!processes.empty()) {
         processes.pop_back();
     }
@@ -504,10 +518,15 @@ void MainWindow::on_restartButton_clicked()
     if(model){
         model->clear();
     }
-    //gantt chart clear
+    // gantt chart clear
 
-    //schedular enable
+    // schedular enable
     ui->schedulerSelect->setEnabled(true);
+    // enable delete button
+    ui->deleteButton->setEnabled(true);
+    // clear avgTurnaroundText and avgWaitingText
+    ui->avgTurnaroundText->clear();
+    ui->avgWaitingText->clear();
 }
 
 
