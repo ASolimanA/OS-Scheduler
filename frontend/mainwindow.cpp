@@ -72,6 +72,7 @@ void MainWindow::init_process_table(QTableView *tableView)
 
     // Set the row height
     tableView->verticalHeader()->setDefaultSectionSize(30);
+    ui->tableView->setEnabled(false);
 }
 
 void MainWindow::connect_signals()
