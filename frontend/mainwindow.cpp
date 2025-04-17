@@ -461,3 +461,39 @@ Scheduler *MainWindow::startScheduler(const QString &selectedAlgorithm, bool isP
     scheduler->addNewProcesses(processes); // Set the processes in the scheduler
     return scheduler;
 }
+
+void MainWindow::on_deletButton_clicked()
+{
+    if (!processes.empty()) {
+        processes.pop_back();
+    }
+    else{
+        QMessageBox::warning(this, "Invalid Operation", "No thing to be DELETED.");
+        return;
+    }
+
+    // Get the model from the table view
+    QStandardItemModel *model = qobject_cast<QStandardItemModel *>(ui->tableView->model());
+    if (model) {
+        int rowCount = model->rowCount();
+        if (rowCount > 0) {
+            model->removeRow(rowCount - 1);
+        }
+    }
+
+}
+
+
+void MainWindow::on_restartButton_clicked()
+{
+    //precesses reset ??
+    while (!processes.empty()) {
+        processes.pop_back();
+    }
+    //table reset
+    QStandardItemModel *model = qobject_cast<QStandardItemModel *>(ui->tableView->model());
+    if(model){
+        model->clear();
+    }
+}
+
