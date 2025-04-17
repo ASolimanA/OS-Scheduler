@@ -335,26 +335,8 @@ void MainWindow::init_processor_image()
     ui->graphicsView->setRenderHint(QPainter::Antialiasing);
 }
 
-// Implementation for Ganttchart
-// void MainWindow::on_Add_Button_clicked()
-// {
-//     lastProcess = createProcessBlock();
-//     lastSize = 100;
-//     QVBoxLayout* processContainer = new QVBoxLayout(lastProcess);
-//     QLabel* processName = new QLabel(QString("Process %1").arg(processNumber++));
-//     processName->setAlignment(Qt::AlignCenter);
-//     processName->setStyleSheet("border:0; font-weight:bold;");
-//     processContainer->addStretch();
-//     processContainer->addWidget(processName);
-//     processContainer->addStretch();
-//     ganttChart->addWidget(lastProcess);
-// }
-
 void MainWindow::updateGanttChart()
 {
-    static std::shared_ptr<Process> lastProcess = nullptr;
-    static QFrame *lastProcessFrame = nullptr;
-    static int lastSize = 0;
     std::shared_ptr<Process> currentProcess;
     if (scheduler->getCurrentProcess() != nullptr)
     {
@@ -364,24 +346,24 @@ void MainWindow::updateGanttChart()
     {
         currentProcess = nullptr;
     }
-    if (currentProcess != nullptr && (lastProcess == nullptr || currentProcess != lastProcess))
+    if (currentProcess != nullptr && (GanttLastProcess == nullptr || currentProcess != GanttLastProcess))
     {
-        lastProcess = currentProcess;
-        lastProcessFrame = createProcessBlock();
-        lastSize = 100;
-        QVBoxLayout *processContainer = new QVBoxLayout(lastProcessFrame);
+        GanttLastProcess = currentProcess;
+        GanttLastProcessFrame = createProcessBlock();
+        GanttLastSize = 100;
+        QVBoxLayout *processContainer = new QVBoxLayout(GanttLastProcessFrame);
         QLabel *processName = new QLabel(QString::fromStdString(currentProcess->getName()));
         processName->setAlignment(Qt::AlignCenter);
         processName->setStyleSheet("border:0; font-weight:bold;");
         processContainer->addStretch();
         processContainer->addWidget(processName);
         processContainer->addStretch();
-        ganttChart->addWidget(lastProcessFrame);
+        ganttChart->addWidget(GanttLastProcessFrame);
     }
-    else if (lastProcessFrame != nullptr)
+    else if (GanttLastProcessFrame != nullptr)
     {
-        lastSize += 100;
-        lastProcessFrame->setFixedSize(lastSize, 50);
+        GanttLastSize += 100;
+        GanttLastProcessFrame->setFixedSize(GanttLastSize, 50);
     }
 }
 
@@ -501,6 +483,16 @@ void MainWindow::on_deleteButton_clicked()
 
 }
 
+void clearLayout(QLayout* layout) {
+    QLayoutItem* item;
+    while ((item = layout->takeAt(0)) != nullptr) {
+        if (QWidget* widget = item->widget()) {
+            widget->deleteLater();
+        }
+        delete item;
+    }
+}
+
 
 void MainWindow::on_restartButton_clicked()
 {
@@ -519,6 +511,10 @@ void MainWindow::on_restartButton_clicked()
         model->clear();
     }
     // gantt chart clear
+    clearLayout(ganttChart);
+    GanttLastProcess = nullptr;
+    GanttLastProcessFrame = nullptr;
+    GanttLastSize = 0;
 
     // schedular enable
     ui->schedulerSelect->setEnabled(true);

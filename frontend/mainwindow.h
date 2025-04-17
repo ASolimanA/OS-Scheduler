@@ -60,5 +60,8 @@ private:
     Scheduler *scheduler;
     bool live = true;
     bool finished = false;
+    std::shared_ptr<Process> GanttLastProcess = nullptr;
+    QFrame *GanttLastProcessFrame = nullptr;
+    int GanttLastSize = 0;
 };
 #endif // MAINWINDOW_H
