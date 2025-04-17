@@ -40,6 +40,8 @@ private slots:
 
     void on_pauseButton_clicked();
 
+    void on_changeButton_clicked();
+
 protected:
     void init_gui_elements();
 

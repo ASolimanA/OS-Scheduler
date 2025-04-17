@@ -61,4 +61,4 @@ void Process::setWaitingTime(int v) { waitingTime = v; }
 void Process::setTurnaroundTime(int v) { turnaroundTime = v; }
 void Process::setPriority(int v) { priority = v; }
 void Process::setIsComplete(bool v) { isComplete = v; }
-void Process::setName(std::string &name) { this->name = name; }
+void Process::setName(std::string name) { this->name = name; }

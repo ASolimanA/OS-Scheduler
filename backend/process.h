@@ -48,7 +48,7 @@ public:
     void setTurnaroundTime(int);
     void setPriority(int);
     void setIsComplete(bool);
-    void setName(std::string &name);
+    void setName(std::string name);
 
     float getProgress();
 };

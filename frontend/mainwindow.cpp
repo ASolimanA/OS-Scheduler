@@ -73,11 +73,11 @@ void MainWindow::init_process_table(QTableView *tableView)
     // Set the row height
     tableView->verticalHeader()->setDefaultSectionSize(30);
 
-    // Disable editing
-    tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    // // Disable editing
+    // tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-    // Optional: Disable selection if you want it truly read-only
-    tableView->setSelectionMode(QAbstractItemView::NoSelection);
+    // // Optional: Disable selection if you want it truly read-only
+    // tableView->setSelectionMode(QAbstractItemView::NoSelection);
 }
 
 void MainWindow::connect_signals()
@@ -261,7 +261,7 @@ void MainWindow::update_table_view(QTableView *tableView, const std::vector<std:
 
             // Progress item (non-editable)
             QStandardItem *progressItem = new QStandardItem(QString::number(process->getProgress()));
-            // progressItem->setFlags(progressItem->flags() & ~Qt::ItemIsEditable); // Make this item non-editable
+            //progressItem->setFlags(progressItem->flags() & ~Qt::ItemIsEditable); // Make this item non-editable
 
                         QStandardItem *remainingTimeItem = new QStandardItem(QString::number(process->getRemainingTime()));
 
@@ -429,9 +429,14 @@ void MainWindow::on_startButton_clicked()
     ui->deleteButton->setEnabled(false);
     // Disable startButton
     ui->startButton->setEnabled(false);
-    //Disable RaidoButtons ( Preemptive and non-Preemptive )
+    // Disable RaidoButtons ( Preemptive and non-Preemptive )
     ui->preemptive->setEnabled(false);
     ui->non_preemptive->setEnabled(false);
+    // Disable change Button
+    ui->changeButton->setEnabled(false);
+    // Disable editing
+    ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
 }
 
 Scheduler *MainWindow::startScheduler(const QString &selectedAlgorithm, bool isPreemptive)
@@ -506,6 +511,14 @@ void MainWindow::on_restartButton_clicked()
     // Enable RaidoButtons ( Preemptive and non-Preemptive )
     ui->preemptive->setEnabled(true);
     ui->non_preemptive->setEnabled(true);
+    // Enable change Button
+    ui->changeButton->setEnabled(true);
+    // Enable editing in table
+    ui->tableView->setEditTriggers(
+        QAbstractItemView::DoubleClicked |
+        QAbstractItemView::EditKeyPressed |
+        QAbstractItemView::AnyKeyPressed
+        );
     // precesses reset ??
     while (!processes.empty()) {
         processes.pop_back();
@@ -547,6 +560,24 @@ void MainWindow::on_pauseButton_clicked()
             else {
                 timer->start(10);
             }
+        }
+    }
+}
+
+
+void MainWindow::on_changeButton_clicked()
+{
+    QStandardItemModel *model = qobject_cast<QStandardItemModel *>(ui->tableView->model());
+    if (model)
+    {
+        for (int row = 0; row < model->rowCount(); ++row)
+        {
+            QString name = model->item(row, 0)->text();
+            // int progress = model->item(row, 1)->text().toInt();
+            int remaining = model->item(row, 2)->text().toInt();
+            processes[row]-> setName(name.toStdString());
+            processes[row]-> setBurstTime(remaining) ;
+            processes[row]-> setRemainingTime(remaining) ;
         }
     }
 }
