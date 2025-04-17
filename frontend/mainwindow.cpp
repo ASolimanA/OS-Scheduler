@@ -387,6 +387,10 @@ void MainWindow::updateGanttChart()
 
 void MainWindow::periodicFunction()
 {
+    if(scheduler->isSimulationComplete()) {
+        timer->stop();
+        finalRunUpdate();
+    }
     // Update Table View
     update_table_view(ui->tableView, processes);
     // Update Gantt Chart
@@ -397,9 +401,8 @@ void MainWindow::periodicFunction()
 
 void MainWindow::finalRunUpdate()
 {
+    finished = true;
     // Get average waiting time and turnaround time
-    ui->avgWaitingText->setEnabled(false);
-    ui->avgTurnaroundText->setEnabled(false);
     ui->avgWaitingText->setText(QString::number(scheduler->getAvgWaitingTime()));
     ui->avgTurnaroundText->setText(QString::number(scheduler->getAvgTurnaroundTime()));
 }
@@ -422,11 +425,13 @@ void MainWindow::on_startButton_clicked()
         {
             // Start the timer with a delay for live mode
             timer->start(1000);
+            live = true;
         }
         else
         {
             // Start the timer with no delay for non-live mode
             timer->start(10);
+            live = false;
         }
     }
     // Disable the Delete button
@@ -503,5 +508,25 @@ void MainWindow::on_restartButton_clicked()
 
     //schedular enable
     ui->schedulerSelect->setEnabled(true);
+}
+
+
+void MainWindow::on_pauseButton_clicked()
+{
+    if(!finished) {
+        if(ui->pauseButton->text() == "Pause") {
+            timer->stop();
+            ui->pauseButton->setText("Continue");
+        }
+        else {
+            ui->pauseButton->setText("Pause");
+            if(live) {
+                timer->start(1000);
+            }
+            else {
+                timer->start(10);
+            }
+        }
+    }
 }
 

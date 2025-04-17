@@ -38,6 +38,8 @@ private slots:
 
     void on_restartButton_clicked();
 
+    void on_pauseButton_clicked();
+
 protected:
     void init_gui_elements();
 
@@ -56,5 +58,7 @@ private:
     ToggleSwitch *toggleSwitch;
     QTimer *timer;
     Scheduler *scheduler;
+    bool live = true;
+    bool finished = false;
 };
 #endif // MAINWINDOW_H
