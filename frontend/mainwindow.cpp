@@ -428,6 +428,8 @@ void MainWindow::on_startButton_clicked()
             timer->start(10);
         }
     }
+    // Disable the Delete button
+    ui->deleteButton->setEnabled(false);
 }
 
 Scheduler *MainWindow::startScheduler(const QString &selectedAlgorithm, bool isPreemptive)
@@ -463,7 +465,7 @@ Scheduler *MainWindow::startScheduler(const QString &selectedAlgorithm, bool isP
     return scheduler;
 }
 
-void MainWindow::on_deletButton_clicked()
+void MainWindow::on_deleteButton_clicked()
 {
     if (!processes.empty()) {
         processes.pop_back();
@@ -496,5 +498,9 @@ void MainWindow::on_restartButton_clicked()
     if(model){
         model->clear();
     }
+    //gantt chart clear
+
+    //schedular enable
+    ui->schedulerSelect->setEnabled(true);
 }
 

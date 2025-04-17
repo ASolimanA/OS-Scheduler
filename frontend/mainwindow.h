@@ -33,7 +33,7 @@ private slots:
     void on_addProcessButton_clicked();
     void on_startButton_clicked();
 
-    void on_deletButton_clicked();
+    void on_deleteButton_clicked();
 
     void on_restartButton_clicked();
 
