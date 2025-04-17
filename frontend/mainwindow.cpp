@@ -72,7 +72,12 @@ void MainWindow::init_process_table(QTableView *tableView)
 
     // Set the row height
     tableView->verticalHeader()->setDefaultSectionSize(30);
-    ui->tableView->setEnabled(false);
+
+    // Disable editing
+    tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+    // Optional: Disable selection if you want it truly read-only
+    tableView->setSelectionMode(QAbstractItemView::NoSelection);
 }
 
 void MainWindow::connect_signals()
@@ -518,6 +523,7 @@ void MainWindow::on_restartButton_clicked()
     if(model){
         model->clear();
     }
+    init_process_table(ui->tableView);
     // gantt chart clear
 
     // schedular enable
