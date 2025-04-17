@@ -32,6 +32,7 @@ private slots:
     void onToggleSwitchStateChanged(bool checked);
     void on_addProcessButton_clicked();
     void on_startButton_clicked();
+    void periodicFunction();
 
 protected:
     void init_gui_elements();
@@ -39,7 +40,6 @@ protected:
 private:
     void init_process_table(QTableView *tableView);
     void connect_signals();
-    void periodicFunction();
     void updateGanttChart();
     void init_gantt_chart();
     void init_comboBox();

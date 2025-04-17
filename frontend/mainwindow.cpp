@@ -363,8 +363,9 @@ void MainWindow::updateGanttChart()
     {
         currentProcess = nullptr;
     }
-    if (lastProcess == nullptr || currentProcess != lastProcess)
+    if (currentProcess != nullptr && (lastProcess == nullptr || currentProcess != lastProcess))
     {
+        lastProcess = currentProcess;
         lastProcessFrame = createProcessBlock();
         lastSize = 100;
         QVBoxLayout *processContainer = new QVBoxLayout(lastProcessFrame);
@@ -388,7 +389,7 @@ void MainWindow::periodicFunction()
     // Update Table View
     update_table_view(ui->tableView, processes);
     // Update Gantt Chart
-    // updateGanttChart();
+    updateGanttChart();
     // Run the scheduler
     scheduler->runOneStep();
 }
