@@ -72,6 +72,7 @@ void MainWindow::init_process_table(QTableView *tableView)
 
     // Set the row height
     tableView->verticalHeader()->setDefaultSectionSize(30);
+    ui->tableView->setEnabled(false);
 }
 
 void MainWindow::connect_signals()
@@ -428,6 +429,8 @@ void MainWindow::on_startButton_clicked()
             timer->start(10);
         }
     }
+    // Disable the Delete button
+    ui->deleteButton->setEnabled(false);
 }
 
 Scheduler *MainWindow::startScheduler(const QString &selectedAlgorithm, bool isPreemptive)
@@ -462,3 +465,43 @@ Scheduler *MainWindow::startScheduler(const QString &selectedAlgorithm, bool isP
     scheduler->addNewProcesses(processes); // Set the processes in the scheduler
     return scheduler;
 }
+
+void MainWindow::on_deleteButton_clicked()
+{
+    if (!processes.empty()) {
+        processes.pop_back();
+    }
+    else{
+        QMessageBox::warning(this, "Invalid Operation", "No thing to be DELETED.");
+        return;
+    }
+
+    // Get the model from the table view
+    QStandardItemModel *model = qobject_cast<QStandardItemModel *>(ui->tableView->model());
+    if (model) {
+        int rowCount = model->rowCount();
+        if (rowCount > 0) {
+            model->removeRow(rowCount - 1);
+        }
+    }
+
+}
+
+
+void MainWindow::on_restartButton_clicked()
+{
+    //precesses reset ??
+    while (!processes.empty()) {
+        processes.pop_back();
+    }
+    //table reset
+    QStandardItemModel *model = qobject_cast<QStandardItemModel *>(ui->tableView->model());
+    if(model){
+        model->clear();
+    }
+    //gantt chart clear
+
+    //schedular enable
+    ui->schedulerSelect->setEnabled(true);
+}
+

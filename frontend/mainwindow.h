@@ -34,6 +34,10 @@ private slots:
     void on_startButton_clicked();
     void periodicFunction();
 
+    void on_deleteButton_clicked();
+
+    void on_restartButton_clicked();
+
 protected:
     void init_gui_elements();
 
