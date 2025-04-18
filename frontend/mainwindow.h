@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QTableView>
 #include <QTimer>
+#include <QLabel>
 #include "toggle.h"
 #include "process.h"
 #include "Scheduler.h"
@@ -62,8 +63,11 @@ private:
     Scheduler *scheduler;
     bool live = true;
     bool finished = false;
+    // Gantt Chart Variables
     std::shared_ptr<Process> GanttLastProcess = nullptr;
     QFrame *GanttLastProcessFrame = nullptr;
     int GanttLastSize = 0;
+    QLabel* countLabel = nullptr;
+    int timeCounter = 0;
 };
 #endif // MAINWINDOW_H

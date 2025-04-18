@@ -364,12 +364,37 @@ void MainWindow::updateGanttChart()
         processContainer->addWidget(processName);
         processContainer->addStretch();
         ganttChart->addWidget(GanttLastProcessFrame);
+
+        // Adding line
+        QWidget* lineContainer = new QWidget;
+        QVBoxLayout* lineLayout = new QVBoxLayout(lineContainer);
+        lineLayout->setAlignment(Qt::AlignHCenter);
+
+        QFrame* line = new QFrame;
+        line->setFrameShape(QFrame::VLine);
+        line->setFrameShadow(QFrame::Sunken);
+        line->setLineWidth(1);
+        line->setFixedHeight(40);
+        line->setStyleSheet("background-color:black; margin:0;");
+
+        countLabel = new QLabel();
+        countLabel->setAlignment(Qt::AlignCenter);
+        countLabel->setStyleSheet("font-weight: bold;");
+
+        lineLayout->addWidget(line);
+        lineLayout->addWidget(countLabel);
+
+        ganttChart->addWidget(lineContainer);
     }
     else if (GanttLastProcessFrame != nullptr)
     {
         GanttLastSize += 100;
         GanttLastProcessFrame->setFixedSize(GanttLastSize, 50);
     }
+    if(countLabel != nullptr) {
+        countLabel->setText(QString::number(timeCounter));
+    }
+    timeCounter++;
 }
 
 void MainWindow::periodicFunction()
@@ -536,7 +561,9 @@ void MainWindow::on_restartButton_clicked()
     clearLayout(ganttChart);
     GanttLastProcess = nullptr;
     GanttLastProcessFrame = nullptr;
+    countLabel = nullptr;
     GanttLastSize = 0;
+    timeCounter = 0;
 
     // schedular enable
     ui->schedulerSelect->setEnabled(true);

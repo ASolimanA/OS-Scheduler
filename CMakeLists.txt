@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.19)
 project(OS-Scheduler LANGUAGES CXX)
 
+# Set install prefix to a user-writable location for packaging
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "Default install path" FORCE)
+endif()
+
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets)
 
 qt_standard_project_setup()
@@ -69,3 +74,21 @@ qt_generate_deploy_app_script(
     NO_UNSUPPORTED_PLATFORM_ERROR
 )
 install(SCRIPT ${deploy_script})
+
+########################################################
+##              CPack Configuration                   ## 
+########################################################
+
+# Set application version
+set(CPACK_PACKAGE_VERSION_MAJOR 0)
+set(CPACK_PACKAGE_VERSION_MINOR 1)
+set(CPACK_PACKAGE_VERSION_PATCH 1)
+
+set(CPACK_PACKAGE_VERSION "0.1.1")
+
+include(InstallRequiredSystemLibraries)
+set(CPACK_PACKAGE_NAME "OS-Scheduler")
+set(CPACK_GENERATOR "ZIP")
+install(CODE "execute_process(COMMAND windeployqt \"\$<TARGET_FILE:OS-Scheduler>\" --release)")
+
+include(CPack)
