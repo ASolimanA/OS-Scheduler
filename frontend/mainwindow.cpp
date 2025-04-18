@@ -557,6 +557,14 @@ void MainWindow::on_pauseButton_clicked()
         }
         else {
             ui->pauseButton->setText("Pause");
+            // Passing the new process to the backend
+            // Get the selected algorithm from the combo box
+            QString selectedAlgorithm = ui->schedulerSelect->currentText();
+
+            // Get the selected preemptive option
+            bool isPreemptive = ui->preemptive->isChecked();
+
+            scheduler = startScheduler(selectedAlgorithm, isPreemptive);
             if(live) {
                 timer->start(1000);
             }
