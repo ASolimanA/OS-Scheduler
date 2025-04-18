@@ -274,12 +274,15 @@ bool RR_Scheduler::runOneStep() {
         }
     }
 
+    // Store previous process for tracking purposes
+    std::shared_ptr<Process> previousProcess = currentProcess;
+    bool processJustCompleted = false;
+
     // If no current process or current process's quantum expired or completed
     if (!currentProcess || quantumCounter >= timeQuantum || currentProcess->getRemainingTime() <= 0) {
         // If there was a current process and it still has work, put it back in queue
         if (currentProcess && currentProcess->getRemainingTime() > 0) {
             roundRobinQueue.push(currentProcess);
-            currentProcess = nullptr;
         }
 
         // If current process completed, mark it as such
@@ -288,11 +291,17 @@ bool RR_Scheduler::runOneStep() {
             currentProcess->setIsComplete(true);
             currentProcess->setTurnaroundTime(currentProcess->getCompletionTime() - currentProcess->getArrivalTime());
             currentProcess->setWaitingTime(currentProcess->getTurnaroundTime() - currentProcess->getBurstTime());
-            currentProcess = nullptr;
+            processJustCompleted = true;
+            // Don't set currentProcess to nullptr yet for tracking purposes
         }
 
         // Get next process from queue
         if (!roundRobinQueue.empty()) {
+            // Now we can set currentProcess to nullptr before getting next process
+            if (processJustCompleted) {
+                currentProcess = nullptr;
+            }
+
             currentProcess = roundRobinQueue.front();
             roundRobinQueue.pop();
 
@@ -302,6 +311,9 @@ bool RR_Scheduler::runOneStep() {
             }
 
             quantumCounter = 0;
+        } else if (processJustCompleted) {
+            // If a process just completed and there's nothing in the queue, keep currentProcess for display
+            // It will be handled in the next iteration
         }
     }
 
@@ -316,8 +328,7 @@ bool RR_Scheduler::runOneStep() {
             currentProcess->setIsComplete(true);
             currentProcess->setTurnaroundTime(currentProcess->getCompletionTime() - currentProcess->getArrivalTime());
             currentProcess->setWaitingTime(currentProcess->getTurnaroundTime() - currentProcess->getBurstTime());
-            currentProcess = nullptr;
-            quantumCounter = 0;
+            // Keep currentProcess non-null until next iteration for tracking
         }
     }
 
@@ -331,6 +342,7 @@ bool RR_Scheduler::runOneStep() {
     // Return whether simulation is complete
     return isSimulationComplete();
 }
+
 
 bool RR_Scheduler::allProcessesComplete() const {
     for (const auto& p : allProcesses) {

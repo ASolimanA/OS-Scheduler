@@ -55,13 +55,23 @@ void FCFS_Scheduler::runStatic(int runUntilTime) {
     calculateAvgWaitingTime();
     calculateAvgTurnaroundTime();
 }
-
+// For FCFS_Scheduler
 bool FCFS_Scheduler::runOneStep() {
     // Update ready queue with any newly arrived processes
     updateReadyQueue();
 
+    // Store info about process completion for tracking purposes
+    bool processJustCompleted = false;
+
+    // If current process just completed in the last step
+    if (currentProcess && currentProcess->getRemainingTime() <= 0) {
+        // Process already marked as complete, but we kept the reference
+        // for UI display purposes. Now we'll actually handle the completion.
+        currentProcess = nullptr;
+    }
+
     // If no current process, get the next one from the queue
-    if (!currentProcess || currentProcess->getRemainingTime() <= 0) {
+    if (!currentProcess) {
         if (!readyQueue.empty()) {
             currentProcess = selectNextProcess();
             readyQueue.pop();
@@ -111,8 +121,9 @@ bool FCFS_Scheduler::runOneStep() {
         currentProcess->setTurnaroundTime(currentProcess->getCompletionTime() - currentProcess->getArrivalTime());
         currentProcess->setWaitingTime(currentProcess->getTurnaroundTime() - currentProcess->getBurstTime());
 
-        // Reset current process
-        currentProcess = nullptr;
+        // DON'T reset current process yet - keep it for display purposes
+        // It will be reset at the beginning of the next step
+        processJustCompleted = true;
     }
 
     // Calculate metrics after each step
@@ -121,6 +132,7 @@ bool FCFS_Scheduler::runOneStep() {
 
     return isSimulationComplete();
 }
+
 bool FCFS_Scheduler::allProcessesComplete() const {
     for (const auto& p : allProcesses) {
         if (!p->getIsComplete())
