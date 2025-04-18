@@ -12,7 +12,6 @@ public:
     std::shared_ptr<Process> selectNextProcess() override;
 
 private:
-    std::shared_ptr<Process> currentProcess = nullptr;
     bool allProcessesComplete() const;
     int findNextArrivalTime() const;
 };
