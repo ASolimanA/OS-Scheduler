@@ -198,6 +198,9 @@ void MainWindow::on_addProcessButton_clicked()
 
         // put the processes in the vector
         processes.push_back(std::make_shared<Process>(processName.toStdString(), arrivalTimeInt, burstTime, priorityInt));
+        if(running_flag){
+            scheduler->addProcess(std::make_shared<Process>(processName.toStdString(), arrivalTimeInt, burstTime, priorityInt));
+        }
 
         // close combobox
         ui->schedulerSelect->setEnabled(false);
@@ -414,6 +417,7 @@ void MainWindow::periodicFunction()
 void MainWindow::finalRunUpdate()
 {
     finished = true;
+    running_flag = false;
     // Get average waiting time and turnaround time
     ui->avgWaitingText->setText(QString::number(scheduler->getAvgWaitingTime()));
     ui->avgTurnaroundText->setText(QString::number(scheduler->getAvgTurnaroundTime()));
@@ -451,6 +455,7 @@ void MainWindow::on_startButton_clicked()
         }
     }
     finished = false;
+    running_flag = true;
     // Disable the Delete button
     ui->deleteButton->setEnabled(false);
     // Disable startButton
@@ -532,6 +537,8 @@ void clearLayout(QLayout* layout) {
 
 void MainWindow::on_restartButton_clicked()
 {
+    running_flag = false;
+    finished = false;
     // Stoping timer
     timer->stop();
     // Enable startButton
@@ -578,20 +585,16 @@ void MainWindow::on_restartButton_clicked()
 void MainWindow::on_pauseButton_clicked()
 {
     if(!finished) {
+
         if(ui->pauseButton->text() == "Pause") {
             timer->stop();
             ui->pauseButton->setText("Continue");
         }
         else {
+
             ui->pauseButton->setText("Pause");
             // Passing the new process to the backend
-            // Get the selected algorithm from the combo box
-            QString selectedAlgorithm = ui->schedulerSelect->currentText();
-
-            // Get the selected preemptive option
-            bool isPreemptive = ui->preemptive->isChecked();
-
-            scheduler = startScheduler(selectedAlgorithm, isPreemptive);
+            // scheduler->addProcess();
             if(live) {
                 timer->start(1000);
             }

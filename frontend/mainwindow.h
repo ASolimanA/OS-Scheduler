@@ -65,6 +65,7 @@ private:
     bool finished = false;
     // Gantt Chart Variables
     std::shared_ptr<Process> GanttLastProcess = nullptr;
+    bool running_flag = false;
     QFrame *GanttLastProcessFrame = nullptr;
     int GanttLastSize = 0;
     QLabel* countLabel = nullptr;
