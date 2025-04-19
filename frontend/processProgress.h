@@ -29,6 +29,10 @@ public:
      */
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const override;
+
+protected:
+    bool editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index);
+    QWidget *createEditor(QWidget *, const QStyleOptionViewItem &, const QModelIndex &) const;
 };
 
 #endif // PROCESS_PROGRESS_H

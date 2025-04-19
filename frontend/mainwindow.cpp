@@ -198,7 +198,8 @@ void MainWindow::on_addProcessButton_clicked()
 
         // put the processes in the vector
         processes.push_back(std::make_shared<Process>(processName.toStdString(), arrivalTimeInt, burstTime, priorityInt));
-        if(running_flag){
+        if (running_flag)
+        {
             scheduler->addProcess(std::make_shared<Process>(processName.toStdString(), arrivalTimeInt, burstTime, priorityInt));
         }
 
@@ -264,9 +265,9 @@ void MainWindow::update_table_view(QTableView *tableView, const std::vector<std:
 
             // Progress item (non-editable)
             QStandardItem *progressItem = new QStandardItem(QString::number(process->getProgress()));
-            //progressItem->setFlags(progressItem->flags() & ~Qt::ItemIsEditable); // Make this item non-editable
+            // progressItem->setFlags(progressItem->flags() & ~Qt::ItemIsEditable); // Make this item non-editable
 
-                        QStandardItem *remainingTimeItem = new QStandardItem(QString::number(process->getRemainingTime()));
+            QStandardItem *remainingTimeItem = new QStandardItem(QString::number(process->getRemainingTime()));
 
             items << nameItem << progressItem << remainingTimeItem;
             model->appendRow(items);
@@ -369,11 +370,11 @@ void MainWindow::updateGanttChart()
         ganttChart->addWidget(GanttLastProcessFrame);
 
         // Adding line
-        QWidget* lineContainer = new QWidget;
-        QVBoxLayout* lineLayout = new QVBoxLayout(lineContainer);
+        QWidget *lineContainer = new QWidget;
+        QVBoxLayout *lineLayout = new QVBoxLayout(lineContainer);
         lineLayout->setAlignment(Qt::AlignHCenter);
 
-        QFrame* line = new QFrame;
+        QFrame *line = new QFrame;
         line->setFrameShape(QFrame::VLine);
         line->setFrameShadow(QFrame::Sunken);
         line->setLineWidth(1);
@@ -394,7 +395,8 @@ void MainWindow::updateGanttChart()
         GanttLastSize += 100;
         GanttLastProcessFrame->setFixedSize(GanttLastSize, 50);
     }
-    if(countLabel != nullptr) {
+    if (countLabel != nullptr)
+    {
         countLabel->setText(QString::number(timeCounter));
     }
     timeCounter++;
@@ -402,7 +404,8 @@ void MainWindow::updateGanttChart()
 
 void MainWindow::periodicFunction()
 {
-    if(scheduler->isSimulationComplete()) {
+    if (scheduler->isSimulationComplete())
+    {
         timer->stop();
         finalRunUpdate();
     }
@@ -425,7 +428,8 @@ void MainWindow::finalRunUpdate()
 
 void MainWindow::on_startButton_clicked()
 {
-    if (processes.empty()) {
+    if (processes.empty())
+    {
         QMessageBox::warning(this, "Invalid Operation", "No Processes to be scheduled.");
         return;
     }
@@ -467,7 +471,6 @@ void MainWindow::on_startButton_clicked()
     ui->changeButton->setEnabled(false);
     // Disable editing
     ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
 }
 
 Scheduler *MainWindow::startScheduler(const QString &selectedAlgorithm, bool isPreemptive)
@@ -505,35 +508,40 @@ Scheduler *MainWindow::startScheduler(const QString &selectedAlgorithm, bool isP
 
 void MainWindow::on_deleteButton_clicked()
 {
-    if (!processes.empty()) {
+    if (!processes.empty())
+    {
         processes.pop_back();
     }
-    else{
+    else
+    {
         QMessageBox::warning(this, "Invalid Operation", "No thing to be DELETED.");
         return;
     }
 
     // Get the model from the table view
     QStandardItemModel *model = qobject_cast<QStandardItemModel *>(ui->tableView->model());
-    if (model) {
+    if (model)
+    {
         int rowCount = model->rowCount();
-        if (rowCount > 0) {
+        if (rowCount > 0)
+        {
             model->removeRow(rowCount - 1);
         }
     }
-
 }
 
-void clearLayout(QLayout* layout) {
-    QLayoutItem* item;
-    while ((item = layout->takeAt(0)) != nullptr) {
-        if (QWidget* widget = item->widget()) {
+void clearLayout(QLayout *layout)
+{
+    QLayoutItem *item;
+    while ((item = layout->takeAt(0)) != nullptr)
+    {
+        if (QWidget *widget = item->widget())
+        {
             widget->deleteLater();
         }
         delete item;
     }
 }
-
 
 void MainWindow::on_restartButton_clicked()
 {
@@ -544,23 +552,25 @@ void MainWindow::on_restartButton_clicked()
     // Enable startButton
     ui->startButton->setEnabled(true);
     // Enable RaidoButtons ( Preemptive and non-Preemptive )
-    ui->preemptive->setEnabled(true);
-    ui->non_preemptive->setEnabled(true);
+    // ui->preemptive->setEnabled(true);
+    // ui->non_preemptive->setEnabled(true);
+    on_schedulerSelect_currentTextChanged(ui->schedulerSelect->currentText());
     // Enable change Button
     ui->changeButton->setEnabled(true);
     // Enable editing in table
     ui->tableView->setEditTriggers(
         QAbstractItemView::DoubleClicked |
         QAbstractItemView::EditKeyPressed |
-        QAbstractItemView::AnyKeyPressed
-        );
+        QAbstractItemView::AnyKeyPressed);
     // precesses reset ??
-    while (!processes.empty()) {
+    while (!processes.empty())
+    {
         processes.pop_back();
     }
-    //table reset
+    // table reset
     QStandardItemModel *model = qobject_cast<QStandardItemModel *>(ui->tableView->model());
-    if(model){
+    if (model)
+    {
         model->clear();
     }
     init_process_table(ui->tableView);
@@ -581,30 +591,33 @@ void MainWindow::on_restartButton_clicked()
     ui->avgWaitingText->clear();
 }
 
-
 void MainWindow::on_pauseButton_clicked()
 {
-    if(!finished) {
+    if (!finished)
+    {
 
-        if(ui->pauseButton->text() == "Pause") {
+        if (ui->pauseButton->text() == "Pause")
+        {
             timer->stop();
             ui->pauseButton->setText("Continue");
         }
-        else {
+        else
+        {
 
             ui->pauseButton->setText("Pause");
             // Passing the new process to the backend
             // scheduler->addProcess();
-            if(live) {
+            if (live)
+            {
                 timer->start(1000);
             }
-            else {
+            else
+            {
                 timer->start(10);
             }
         }
     }
 }
-
 
 void MainWindow::on_changeButton_clicked()
 {
@@ -616,10 +629,9 @@ void MainWindow::on_changeButton_clicked()
             QString name = model->item(row, 0)->text();
             // int progress = model->item(row, 1)->text().toInt();
             int remaining = model->item(row, 2)->text().toInt();
-            processes[row]-> setName(name.toStdString());
-            processes[row]-> setBurstTime(remaining) ;
-            processes[row]-> setRemainingTime(remaining) ;
+            processes[row]->setName(name.toStdString());
+            processes[row]->setBurstTime(remaining);
+            processes[row]->setRemainingTime(remaining);
         }
     }
 }
-

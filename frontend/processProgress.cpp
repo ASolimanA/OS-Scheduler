@@ -28,3 +28,11 @@ void ProgressBarDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
         QStyledItemDelegate::paint(painter, option, index);
     }
 }
+bool ProgressBarDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index)
+{
+    return false;
+}
+QWidget *ProgressBarDelegate::createEditor(QWidget *, const QStyleOptionViewItem &, const QModelIndex &) const
+{
+    return Q_NULLPTR;
+}
