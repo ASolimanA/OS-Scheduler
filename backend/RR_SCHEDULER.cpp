@@ -1,42 +1,3 @@
-// rr_scheduler.h
-#ifndef RR_SCHEDULER_H
-#define RR_SCHEDULER_H
-
-#include "scheduler.h"
-#include <queue>
-#include <climits>  // For INT_MAX
-
-class RR_Scheduler : public Scheduler {
-private:
-    std::shared_ptr<Process> currentProcess = nullptr;
-    int quantumCounter = 0; // To track how much of the quantum has been used
-    int timeQuantum;
-    std::queue<std::shared_ptr<Process>> roundRobinQueue;
-
-    bool allProcessesComplete() const;
-    int findNextArrivalTime() const;
-
-public:
-    RR_Scheduler(int quantum = 2);
-    void runStatic(int runUntilTime = -1) override;
-    bool runOneStep() override;
-    std::shared_ptr<Process> selectNextProcess() override;
-
-    // Queue maintenance is different for RR
-    void updateReadyQueue() override;
-
-    // Additional methods for RR
-    void addProcess(std::shared_ptr<Process> p) override;
-    void deleteProcess(int pid) override;
-    void updateProcess(std::shared_ptr<Process> p) override;
-
-    // Getter/setter for time quantum
-    int getTimeQuantum() const;
-    void setTimeQuantum(int quantum);
-};
-
-#endif // RR_SCHEDULER_H
-
 // rr_scheduler.cpp
 #include "rr_scheduler.h"
 #include <algorithm>
@@ -262,87 +223,92 @@ void RR_Scheduler::runStatic(int runUntilTime) {
 }
 
 bool RR_Scheduler::runOneStep() {
-    // Check if all processes are complete
-    if (isSimulationComplete()) {
+   this->updateReadyQueue();
+    if (allProcessesComplete()) {
         return true;
     }
 
-    // Check for new arrivals at the current time
+    // 1. Add arriving processes to the queue
     for (auto& p : allProcesses) {
-        if (!p->getIsComplete() && p->getArrivalTime() == timeCounter) {
-            roundRobinQueue.push(p);
+        if (p->getArrivalTime() == timeCounter && !p->getIsComplete()) {
+            bool inQueue = false;
+            std::queue<std::shared_ptr<Process>> temp = roundRobinQueue;
+            while (!temp.empty()) {
+                if (temp.front()->getPid() == p->getPid()) {
+                    inQueue = true;
+                    break;
+                }
+                temp.pop();
+            }
+            if (!inQueue) {
+                roundRobinQueue.push(p);
+            }
         }
     }
 
-    // Store previous process for tracking purposes
-    std::shared_ptr<Process> previousProcess = currentProcess;
-    bool processJustCompleted = false;
+    // 2. Check process state changes
 
-    // If no current process or current process's quantum expired or completed
-    if (!currentProcess || quantumCounter >= timeQuantum || currentProcess->getRemainingTime() <= 0) {
-        // If there was a current process and it still has work, put it back in queue
-        if (currentProcess && currentProcess->getRemainingTime() > 0) {
+    // If we had a process that completed in previous step, we need to select a new one
+    // But don't clear currentProcess yet - we need it for display
+    bool needNewProcess = false;
+
+    if (currentProcess) {
+        if (currentProcess->getRemainingTime() <= 0) {
+            // Process is completed (from previous step)
+            // Don't nullify it yet - just note we need a new one
+            needNewProcess = true;
+        } else if (quantumCounter >= timeQuantum) {
+            // Process used up its quantum
             roundRobinQueue.push(currentProcess);
+            needNewProcess = true;
         }
+    } else {
+        // No current process, need a new one if available
+        needNewProcess = true;
+    }
 
-        // If current process completed, mark it as such
-        if (currentProcess && currentProcess->getRemainingTime() <= 0) {
-            currentProcess->setCompletionTime(timeCounter);
-            currentProcess->setIsComplete(true);
-            currentProcess->setTurnaroundTime(currentProcess->getCompletionTime() - currentProcess->getArrivalTime());
-            currentProcess->setWaitingTime(currentProcess->getTurnaroundTime() - currentProcess->getBurstTime());
-            processJustCompleted = true;
-            // Don't set currentProcess to nullptr yet for tracking purposes
-        }
+    // Select new process if needed
+    std::shared_ptr<Process> nextProcess = nullptr;
+    if (needNewProcess && !roundRobinQueue.empty()) {
+        nextProcess = roundRobinQueue.front();
+        roundRobinQueue.pop();
 
-        // Get next process from queue
-        if (!roundRobinQueue.empty()) {
-            // Now we can set currentProcess to nullptr before getting next process
-            if (processJustCompleted) {
-                currentProcess = nullptr;
-            }
-
-            currentProcess = roundRobinQueue.front();
-            roundRobinQueue.pop();
-
-            // Set start time if first execution
-            if (currentProcess->getStartTime() < 0) {
-                currentProcess->setStartTime(timeCounter);
-            }
-
-            quantumCounter = 0;
-        } else if (processJustCompleted) {
-            // If a process just completed and there's nothing in the queue, keep currentProcess for display
-            // It will be handled in the next iteration
+        if (nextProcess->getStartTime() < 0) {
+            nextProcess->setStartTime(timeCounter);
         }
     }
 
-    // If we have a current process, execute it for one time unit
+    // Advance time counter
+    timeCounter++;
+
+    // Execute process for this time step
+    if (needNewProcess) {
+        // We're switching processes
+        currentProcess = nextProcess;
+        quantumCounter = 0;
+    }
+
+    // Execute the current process for this time unit
     if (currentProcess) {
         currentProcess->setRemainingTime(currentProcess->getRemainingTime() - 1);
         quantumCounter++;
 
-        // Check if process completed after this time unit
+        // Check if the process just finished with this time step
         if (currentProcess->getRemainingTime() <= 0) {
-            currentProcess->setCompletionTime(timeCounter + 1);
+            currentProcess->setCompletionTime(timeCounter);
             currentProcess->setIsComplete(true);
             currentProcess->setTurnaroundTime(currentProcess->getCompletionTime() - currentProcess->getArrivalTime());
             currentProcess->setWaitingTime(currentProcess->getTurnaroundTime() - currentProcess->getBurstTime());
-            // Keep currentProcess non-null until next iteration for tracking
+            // We keep the reference to currentProcess for display purposes
         }
     }
-
-    // Increase time counter
-    timeCounter++;
 
     // Calculate metrics
     calculateAvgWaitingTime();
     calculateAvgTurnaroundTime();
 
-    // Return whether simulation is complete
-    return isSimulationComplete();
+    return allProcessesComplete();
 }
-
 
 bool RR_Scheduler::allProcessesComplete() const {
     for (const auto& p : allProcesses) {
