@@ -50,10 +50,11 @@ MainWindow::~MainWindow()
 void MainWindow::init_process_table(QTableView *tableView)
 {
     // Set up the model for the table view
-    QStandardItemModel *model = new QStandardItemModel(0, 3, this);
+    QStandardItemModel *model = new QStandardItemModel(0, 4, this);
     model->setHeaderData(0, Qt::Horizontal, "Process Name");
     model->setHeaderData(1, Qt::Horizontal, "Progress");
     model->setHeaderData(2, Qt::Horizontal, "Remaining burst Time");
+    model->setHeaderData(3, Qt::Horizontal, "Arrival Time");
 
     // Set the model to the table view
     tableView->setModel(model);
@@ -62,22 +63,17 @@ void MainWindow::init_process_table(QTableView *tableView)
     ProgressBarDelegate *delegate = new ProgressBarDelegate(this);
     tableView->setItemDelegateForColumn(1, delegate);
 
-    // Set the selection mode and behavior
-    // tableView->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed | QAbstractItemView::AnyKeyPressed);
-
     // Set the column widths
-    tableView->setColumnWidth(0, 100);                                            // Task column width
-    tableView->setColumnWidth(1, 200);                                            // Progress column width
-    tableView->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch); // Stretch the last column
+    tableView->setColumnWidth(0, 90);  // Task column width
+    tableView->setColumnWidth(2, 135); // Burst time width
+    tableView->setColumnWidth(3, 90);  // Arrival time width
+
+    // Alternative approach: Set all columns to Fixed first, then override for the Progress column
+    tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    tableView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
 
     // Set the row height
     tableView->verticalHeader()->setDefaultSectionSize(30);
-
-    // // Disable editing
-    // tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
-    // // Optional: Disable selection if you want it truly read-only
-    // tableView->setSelectionMode(QAbstractItemView::NoSelection);
 }
 
 void MainWindow::connect_signals()
@@ -93,6 +89,13 @@ void MainWindow::connect_signals()
 
     // Connect timer to periodicFunction
     connect(timer, &QTimer::timeout, this, &MainWindow::periodicFunction);
+
+    // Connect the table view model's dataChanged signal to the slot
+    QStandardItemModel *model = qobject_cast<QStandardItemModel *>(ui->tableView->model());
+    if (model)
+    {
+        connect(model, &QStandardItemModel::dataChanged, this, &MainWindow::onDataChanged);
+    }
 }
 
 void MainWindow::onToggleSwitchStateChanged(bool checked)
@@ -156,17 +159,6 @@ void MainWindow::on_addProcessButton_clicked()
             return; // Return if the arrival time is empty
         }
 
-        // if the comboBox is not chosen as Round Robin don't get the value of lineEdit
-        // QString timeQuantum;
-        // int timeQuantumInt;
-        // if (ui->schedulerSelect->currentText() == "Round Robin")
-        // {
-        //     // Get the time quantum from the line edit
-        //     timeQuantum = ui->quantumText->text();
-        //     timeQuantumInt = timeQuantum.toInt(); // Get the time quantum as an integer
-        //     ui->quantumText->clear();
-        // }
-
         // if the comboBox is not chosen as Round Robin or Priority don't get the value of lineEdit_3
         QString priority;
         int priorityInt;
@@ -190,7 +182,10 @@ void MainWindow::on_addProcessButton_clicked()
         ui->timeBurstText->clear();
 
         // Create a new item for the process name
-        items << new QStandardItem(processName) << new QStandardItem("0") << new QStandardItem(remainingBurstTime);
+        items << new QStandardItem(processName)
+              << new QStandardItem("0")
+              << new QStandardItem(remainingBurstTime)
+              << new QStandardItem(arrivalTime);
         model->appendRow(items);
 
         int burstTime = remainingBurstTime.toInt(); // Get the burst time as an integer
@@ -263,13 +258,15 @@ void MainWindow::update_table_view(QTableView *tableView, const std::vector<std:
 
             QStandardItem *nameItem = new QStandardItem(QString::fromStdString(process->getName()));
 
-            // Progress item (non-editable)
+            // Progress item
             QStandardItem *progressItem = new QStandardItem(QString::number(process->getProgress()));
-            // progressItem->setFlags(progressItem->flags() & ~Qt::ItemIsEditable); // Make this item non-editable
 
             QStandardItem *remainingTimeItem = new QStandardItem(QString::number(process->getRemainingTime()));
 
-            items << nameItem << progressItem << remainingTimeItem;
+            // Add arrival time item
+            QStandardItem *arrivalTimeItem = new QStandardItem(QString::number(process->getArrivalTime()));
+
+            items << nameItem << progressItem << remainingTimeItem << arrivalTimeItem;
             model->appendRow(items);
         }
     }
@@ -321,7 +318,7 @@ void MainWindow::init_processor_image()
 
             if (processorImage.isNull())
             {
-                qDebug() << "Failed to load processor.png";
+                // qDebug() << "Failed to load processor.png";
                 return;
             }
         }
@@ -467,8 +464,6 @@ void MainWindow::on_startButton_clicked()
     // Disable RaidoButtons ( Preemptive and non-Preemptive )
     ui->preemptive->setEnabled(false);
     ui->non_preemptive->setEnabled(false);
-    // Disable change Button
-    ui->changeButton->setEnabled(false);
     // Disable editing
     ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
@@ -514,7 +509,7 @@ void MainWindow::on_deleteButton_clicked()
     }
     else
     {
-        QMessageBox::warning(this, "Invalid Operation", "No thing to be DELETED.");
+        QMessageBox::warning(this, "Invalid Operation", "Nothing to be DELETED.");
         return;
     }
 
@@ -551,17 +546,12 @@ void MainWindow::on_restartButton_clicked()
     timer->stop();
     // Enable startButton
     ui->startButton->setEnabled(true);
-    // Enable RaidoButtons ( Preemptive and non-Preemptive )
-    // ui->preemptive->setEnabled(true);
-    // ui->non_preemptive->setEnabled(true);
+
+    // Reenable the radio buttons functionality
     on_schedulerSelect_currentTextChanged(ui->schedulerSelect->currentText());
-    // Enable change Button
-    ui->changeButton->setEnabled(true);
+
     // Enable editing in table
-    ui->tableView->setEditTriggers(
-        QAbstractItemView::DoubleClicked |
-        QAbstractItemView::EditKeyPressed |
-        QAbstractItemView::AnyKeyPressed);
+    ui->tableView->setEditTriggers(QAbstractItemView::AllEditTriggers);
     // precesses reset ??
     while (!processes.empty())
     {
@@ -571,9 +561,8 @@ void MainWindow::on_restartButton_clicked()
     QStandardItemModel *model = qobject_cast<QStandardItemModel *>(ui->tableView->model());
     if (model)
     {
-        model->clear();
+        model->removeRows(0, model->rowCount());
     }
-    init_process_table(ui->tableView);
     // gantt chart clear
     clearLayout(ganttChart);
     GanttLastProcess = nullptr;
@@ -619,19 +608,41 @@ void MainWindow::on_pauseButton_clicked()
     }
 }
 
-void MainWindow::on_changeButton_clicked()
+void MainWindow::onDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
 {
+    // For simplicity, assume only one cell was changed
+    int row = topLeft.row();
+    int column = topLeft.column();
+
+    // Get the model
     QStandardItemModel *model = qobject_cast<QStandardItemModel *>(ui->tableView->model());
-    if (model)
+    if (!model || row >= processes.size())
+        return;
+
+    // Update the corresponding process based on the changed column
+    switch (column)
     {
-        for (int row = 0; row < model->rowCount(); ++row)
-        {
-            QString name = model->item(row, 0)->text();
-            // int progress = model->item(row, 1)->text().toInt();
-            int remaining = model->item(row, 2)->text().toInt();
-            processes[row]->setName(name.toStdString());
-            processes[row]->setBurstTime(remaining);
-            processes[row]->setRemainingTime(remaining);
-        }
+    case 0: // Process Name
+    {
+        QString name = model->item(row, column)->text();
+        processes[row]->setName(name.toStdString());
+        // qDebug() << "Process name updated to:" << name;
+    }
+    break;
+    case 2: // Remaining Time
+    {
+        int remaining = model->item(row, column)->text().toInt();
+        processes[row]->setBurstTime(remaining);
+        processes[row]->setRemainingTime(remaining);
+        // qDebug() << "Process burst time updated to:" << remaining;
+    }
+    break;
+    case 3: // Arrival Time
+    {
+        int arrival = model->item(row, column)->text().toInt();
+        processes[row]->setArrivalTime(arrival);
+        // qDebug() << "Process arrival time updated to:" << arrival;
+    }
+    break;
     }
 }

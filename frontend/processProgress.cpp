@@ -15,7 +15,7 @@ void ProgressBarDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
         progressBarOption.minimum = 0;
         progressBarOption.maximum = 100;
         progressBarOption.progress = progress;
-        progressBarOption.text = QString("%1%").arg(progress);
+        progressBarOption.text = QString("%1%").arg(QString::number(progress, 'f', 2));
         progressBarOption.textVisible = true;
 
         // Draw the progress bar using the application style

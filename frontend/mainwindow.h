@@ -34,14 +34,11 @@ private slots:
     void on_addProcessButton_clicked();
     void on_startButton_clicked();
     void periodicFunction();
-
     void on_deleteButton_clicked();
-
     void on_restartButton_clicked();
-
     void on_pauseButton_clicked();
-
-    void on_changeButton_clicked();
+    void onDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>());
+    // void on_changeButton_clicked();
 
 protected:
     void init_gui_elements();
@@ -68,7 +65,7 @@ private:
     bool running_flag = false;
     QFrame *GanttLastProcessFrame = nullptr;
     int GanttLastSize = 0;
-    QLabel* countLabel = nullptr;
+    QLabel *countLabel = nullptr;
     int timeCounter = 0;
 };
 #endif // MAINWINDOW_H
