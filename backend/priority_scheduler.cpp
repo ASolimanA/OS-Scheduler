@@ -90,12 +90,11 @@ void Priority_Scheduler::runStatic(int runUntilTime) {
     calculateAvgWaitingTime();
     calculateAvgTurnaroundTime();
 }
+
+
 bool Priority_Scheduler::runOneStep() {
     // Update ready queue with any newly arrived processes
     updateReadyQueue();
-
-    // Store info about process completion for tracking purposes
-    bool processJustCompleted = false;
 
     // If current process just completed in the last step
     if (currentProcess && currentProcess->getRemainingTime() <= 0) {
@@ -126,26 +125,12 @@ bool Priority_Scheduler::runOneStep() {
             if (isSimulationComplete())
                 return true;
 
-            // Advance time to the next process arrival if no processes are ready
-            int nextArrival = findNextArrivalTime();
-            if (nextArrival > timeCounter) {
-                timeCounter = nextArrival;
-                updateReadyQueue(); // Check again after advancing time
+            // Advance time by just 1 unit if no processes are ready
+            timeCounter++;
+            updateReadyQueue(); // Check again after advancing time
 
-                // Try to get a process again
-                if (!readyQueue.empty()) {
-                    currentProcess = selectNextProcess();
-                    readyQueue.pop();
-
-                    // Set start time if this is first execution
-                    if (currentProcess->getStartTime() < 0)
-                        currentProcess->setStartTime(timeCounter);
-                }
-            }
-
-            if (!currentProcess) {
-                return isSimulationComplete(); // Return whether sim is complete
-            }
+            // Return but don't mark as complete - this is an idle step
+            return false;
         }
     }
 
@@ -162,10 +147,6 @@ bool Priority_Scheduler::runOneStep() {
         // Calculate metrics
         currentProcess->setTurnaroundTime(currentProcess->getCompletionTime() - currentProcess->getArrivalTime());
         currentProcess->setWaitingTime(currentProcess->getTurnaroundTime() - currentProcess->getBurstTime());
-
-        // DON'T reset current process yet - keep it for display purposes
-        // It will be reset at the beginning of the next step
-        processJustCompleted = true;
     }
 
     // Calculate metrics after each step
@@ -174,6 +155,7 @@ bool Priority_Scheduler::runOneStep() {
 
     return isSimulationComplete();
 }
+
 bool Priority_Scheduler::allProcessesComplete() const {
     for (const auto& p : allProcesses) {
         if (!p->getIsComplete())

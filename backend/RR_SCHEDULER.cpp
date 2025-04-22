@@ -223,12 +223,12 @@ void RR_Scheduler::runStatic(int runUntilTime) {
 }
 
 bool RR_Scheduler::runOneStep() {
-   this->updateReadyQueue();
-    if (allProcessesComplete()) {
-        return true;
+    // First, clear any completed process from being current
+    if (currentProcess && currentProcess->getRemainingTime() <= 0) {
+        currentProcess = nullptr;
     }
 
-    // 1. Add arriving processes to the queue
+    // Add arriving processes to the queue
     for (auto& p : allProcesses) {
         if (p->getArrivalTime() == timeCounter && !p->getIsComplete()) {
             bool inQueue = false;
@@ -246,20 +246,17 @@ bool RR_Scheduler::runOneStep() {
         }
     }
 
-    // 2. Check process state changes
-
-    // If we had a process that completed in previous step, we need to select a new one
-    // But don't clear currentProcess yet - we need it for display
+    // Check process state changes
     bool needNewProcess = false;
 
     if (currentProcess) {
         if (currentProcess->getRemainingTime() <= 0) {
-            // Process is completed (from previous step)
-            // Don't nullify it yet - just note we need a new one
+            // Process is completed - we should have cleared it above
             needNewProcess = true;
         } else if (quantumCounter >= timeQuantum) {
             // Process used up its quantum
             roundRobinQueue.push(currentProcess);
+            currentProcess = nullptr; // Clear the current process
             needNewProcess = true;
         }
     } else {
@@ -267,26 +264,42 @@ bool RR_Scheduler::runOneStep() {
         needNewProcess = true;
     }
 
-    // Select new process if needed
-    std::shared_ptr<Process> nextProcess = nullptr;
-    if (needNewProcess && !roundRobinQueue.empty()) {
-        nextProcess = roundRobinQueue.front();
-        roundRobinQueue.pop();
+    // If we need a new process, get one from the queue
+    if (needNewProcess) {
+        if (!roundRobinQueue.empty()) {
+            currentProcess = roundRobinQueue.front();
+            roundRobinQueue.pop();
 
-        if (nextProcess->getStartTime() < 0) {
-            nextProcess->setStartTime(timeCounter);
+            if (currentProcess->getStartTime() < 0) {
+                currentProcess->setStartTime(timeCounter);
+            }
+            quantumCounter = 0;
+        } else {
+            // No process available, check if simulation is complete
+            if (allProcessesComplete())
+                return true;
+
+            // Advance time by just 1 unit if no processes are ready
+            timeCounter++;
+
+            // Check for any processes arriving at the new time
+            for (auto& p : allProcesses) {
+                if (p->getArrivalTime() == timeCounter && !p->getIsComplete()) {
+                    roundRobinQueue.push(p);
+                }
+            }
+
+            // Calculate metrics
+            calculateAvgWaitingTime();
+            calculateAvgTurnaroundTime();
+
+            // Return but don't mark as complete - this is an idle step
+            return false;
         }
     }
 
     // Advance time counter
     timeCounter++;
-
-    // Execute process for this time step
-    if (needNewProcess) {
-        // We're switching processes
-        currentProcess = nextProcess;
-        quantumCounter = 0;
-    }
 
     // Execute the current process for this time unit
     if (currentProcess) {
@@ -299,7 +312,7 @@ bool RR_Scheduler::runOneStep() {
             currentProcess->setIsComplete(true);
             currentProcess->setTurnaroundTime(currentProcess->getCompletionTime() - currentProcess->getArrivalTime());
             currentProcess->setWaitingTime(currentProcess->getTurnaroundTime() - currentProcess->getBurstTime());
-            // We keep the reference to currentProcess for display purposes
+            // We'll clear this in the next step
         }
     }
 
