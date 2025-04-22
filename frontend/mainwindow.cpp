@@ -405,7 +405,7 @@ void MainWindow::updateGanttChart()
         GanttLastSize += 100;
         GanttLastProcessFrame->setFixedSize(GanttLastSize, 50);
     }
-    else if (currentProcess == nullptr && GanttLastProcessFrame == nullptr)
+    else if (currentProcess == nullptr && GanttLastProcessFrame == nullptr && timeCounter != 0)
     {
         // CPU is idle — create an idle block
         GanttLastProcess = nullptr; // mark it as idle time
