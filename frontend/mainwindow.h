@@ -52,6 +52,7 @@ private:
     void init_toggle_switch();
     void init_processor_image();
     void finalRunUpdate();
+    void addTimeLine();
     Scheduler *startScheduler(const QString &selectedAlgorithm, bool isPreemptive);
 
     Ui::MainWindow *ui;

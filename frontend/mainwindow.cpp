@@ -18,7 +18,38 @@
 // Just Testing
 QHBoxLayout *ganttChart;
 
+void MainWindow::addTimeLine() {
+    QWidget *lineContainer = new QWidget;
+    QVBoxLayout *lineLayout = new QVBoxLayout(lineContainer);
+    lineLayout->setAlignment(Qt::AlignHCenter);
+
+    QFrame *line = new QFrame;
+    line->setFrameShape(QFrame::VLine);
+    line->setFrameShadow(QFrame::Sunken);
+    line->setLineWidth(1);
+    line->setFixedHeight(40);
+    line->setStyleSheet("background-color:black; margin:0;");
+
+    countLabel = new QLabel();
+    countLabel->setAlignment(Qt::AlignCenter);
+    countLabel->setStyleSheet("font-weight: bold;");
+
+    lineLayout->addWidget(line);
+    lineLayout->addWidget(countLabel);
+
+    ganttChart->addWidget(lineContainer);
+}
+
+
 QFrame *createProcessBlock()
+{
+    QFrame *process = new QFrame;
+    process->setFixedSize(QSize(100, 50));
+    process->setStyleSheet(QString("background-color: #3C99DC; border: 1px solid black;"));
+    return process;
+}
+
+QFrame *createIdealBlock()
 {
     QFrame *process = new QFrame;
     process->setFixedSize(QSize(100, 50));
@@ -351,6 +382,7 @@ void MainWindow::updateGanttChart()
     else
     {
         currentProcess = nullptr;
+        GanttLastProcessFrame = nullptr;
     }
     if (currentProcess != nullptr && (GanttLastProcess == nullptr || currentProcess != GanttLastProcess))
     {
@@ -366,32 +398,32 @@ void MainWindow::updateGanttChart()
         processContainer->addStretch();
         ganttChart->addWidget(GanttLastProcessFrame);
 
-        // Adding line
-        QWidget *lineContainer = new QWidget;
-        QVBoxLayout *lineLayout = new QVBoxLayout(lineContainer);
-        lineLayout->setAlignment(Qt::AlignHCenter);
-
-        QFrame *line = new QFrame;
-        line->setFrameShape(QFrame::VLine);
-        line->setFrameShadow(QFrame::Sunken);
-        line->setLineWidth(1);
-        line->setFixedHeight(40);
-        line->setStyleSheet("background-color:black; margin:0;");
-
-        countLabel = new QLabel();
-        countLabel->setAlignment(Qt::AlignCenter);
-        countLabel->setStyleSheet("font-weight: bold;");
-
-        lineLayout->addWidget(line);
-        lineLayout->addWidget(countLabel);
-
-        ganttChart->addWidget(lineContainer);
+        addTimeLine();
     }
     else if (GanttLastProcessFrame != nullptr)
     {
         GanttLastSize += 100;
         GanttLastProcessFrame->setFixedSize(GanttLastSize, 50);
     }
+    else if (currentProcess == nullptr && GanttLastProcessFrame == nullptr)
+    {
+        // CPU is idle — create an idle block
+        GanttLastProcess = nullptr; // mark it as idle time
+        GanttLastProcessFrame = createIdealBlock();
+        GanttLastSize = 100;
+
+        QVBoxLayout *idealContainer = new QVBoxLayout(GanttLastProcessFrame);
+        QLabel *idealName = new QLabel("Idle");
+        idealName->setAlignment(Qt::AlignCenter);
+        idealName->setStyleSheet("border:0; font-weight:bold;");
+        idealContainer->addStretch();
+        idealContainer->addWidget(idealName);
+        idealContainer->addStretch();
+
+        ganttChart->addWidget(GanttLastProcessFrame);
+        addTimeLine(); // helper to add line + time label
+    }
+
     if (countLabel != nullptr)
     {
         countLabel->setText(QString::number(timeCounter));
