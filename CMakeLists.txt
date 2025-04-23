@@ -82,10 +82,9 @@ install(SCRIPT ${deploy_script})
 # Set application version
 set(CPACK_PACKAGE_VERSION_MAJOR 0)
 set(CPACK_PACKAGE_VERSION_MINOR 1)
-set(CPACK_PACKAGE_VERSION_PATCH 1)
+set(CPACK_PACKAGE_VERSION_PATCH 3)
 
-set(CPACK_PACKAGE_VERSION "0.1.1")
-
+# Set the package name, dependency on Qt
 include(InstallRequiredSystemLibraries)
 set(CPACK_PACKAGE_NAME "OS-Scheduler")
 set(CPACK_GENERATOR "ZIP")
