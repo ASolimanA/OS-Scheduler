@@ -82,7 +82,7 @@ install(SCRIPT ${deploy_script})
 # Set application version
 set(CPACK_PACKAGE_VERSION_MAJOR 0)
 set(CPACK_PACKAGE_VERSION_MINOR 1)
-set(CPACK_PACKAGE_VERSION_PATCH 3)
+set(CPACK_PACKAGE_VERSION_PATCH 4)
 
 # Set the package name, dependency on Qt
 include(InstallRequiredSystemLibraries)

@@ -18,7 +18,8 @@
 // Just Testing
 QHBoxLayout *ganttChart;
 
-void MainWindow::addTimeLine() {
+void MainWindow::addTimeLine()
+{
     QWidget *lineContainer = new QWidget;
     QVBoxLayout *lineLayout = new QVBoxLayout(lineContainer);
     lineLayout->setAlignment(Qt::AlignHCenter);
@@ -39,7 +40,6 @@ void MainWindow::addTimeLine() {
 
     ganttChart->addWidget(lineContainer);
 }
-
 
 QFrame *createProcessBlock()
 {
@@ -189,6 +189,16 @@ void MainWindow::on_addProcessButton_clicked()
             QMessageBox::warning(this, "Invalid Input", "Please enter a valid arrival time and other required fields.");
             return; // Return if the arrival time is empty
         }
+        int arrivalTimeInt = arrivalTime.toInt(); // Get the arrival time as an integer
+        if (running_flag)
+        {
+            if (arrivalTimeInt < scheduler->getCurrentTime())
+            {
+                // Show a message box if the arrival time is less than the current time
+                QMessageBox::warning(this, "Invalid Input", "Arrival time cannot be less than the current time.");
+                return; // Return if the arrival time is less than the current time
+            }
+        }
 
         // if the comboBox is not chosen as Round Robin or Priority don't get the value of lineEdit_3
         QString priority;
@@ -220,13 +230,12 @@ void MainWindow::on_addProcessButton_clicked()
         model->appendRow(items);
 
         int burstTime = remainingBurstTime.toInt(); // Get the burst time as an integer
-        int arrivalTimeInt = arrivalTime.toInt();   // Get the arrival time as an integer
 
         // put the processes in the vector
         processes.push_back(std::make_shared<Process>(processName.toStdString(), arrivalTimeInt, burstTime, priorityInt));
         if (running_flag)
         {
-            scheduler->addProcess(std::make_shared<Process>(processName.toStdString(), arrivalTimeInt, burstTime, priorityInt));
+            scheduler->addProcess(processes.back());
         }
 
         // close combobox
